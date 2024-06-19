@@ -17,8 +17,8 @@ public class AppTest {
         Ship ship = new Ship(40, 40);
         for (int x = 0; x < 40; x++) {
             for (int y = 0; y < 40; y++) {
-                assertTrue(ship.tiles[x][y].location.x == x);
-                assertTrue(ship.tiles[x][y].location.y == y);
+                assertTrue(ship.tiles[y][x].location.x == x);
+                assertTrue(ship.tiles[y][x].location.y == y);
             }
         }
     }
