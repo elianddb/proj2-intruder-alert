@@ -43,6 +43,14 @@ public class Tile {
         this(new Type(identifier, status), new Location(x, y));
     }
 
+    public boolean is(Status status) {
+        return type.status == status;
+    }
+
+    public boolean is(Type type) {
+        return this.type == type;
+    }
+
     @Override
     public String toString() {
         return String.format("%c(%d, %d): %s", type.identifier, location.x, location.y, type.status);
