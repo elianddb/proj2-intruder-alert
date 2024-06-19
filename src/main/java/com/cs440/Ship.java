@@ -1,13 +1,15 @@
 package com.cs440;
 
 public class Ship {
+    public static final Tile.Type BLOCK = new Tile.Type('X', Tile.Status.BLOCKED);
+
     protected Tile[][] tiles;
 
     public Ship(int width, int height) {
         tiles = new Tile[width][height];
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
-                tiles[x][y] = new Tile(x, y, 'x', Tile.Type.BLOCK, Tile.Status.CLOSED);
+                tiles[y][x] = new Tile(BLOCK, x, y);
             }
         }
     }
@@ -17,7 +19,7 @@ public class Ship {
         StringBuilder sb = new StringBuilder();
         for (int y = 0; y < tiles[0].length; y++) {
             for (int x = 0; x < tiles.length; x++) {
-                sb.append(tiles[x][y].sprite + " ");
+                sb.append(tiles[y][x].type.identifier + " ");
             }
             sb.append('\n');
         }
