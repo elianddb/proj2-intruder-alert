@@ -8,7 +8,8 @@ public class App {
     public static void main(String[] args) throws IOException {
         Ship ship = new Ship(40, 40);
         System.out.println(ship);
-
+        
+        System.out.println("Press Enter to exit...");
         System.in.read();
     }
 }
