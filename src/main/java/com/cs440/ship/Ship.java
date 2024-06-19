@@ -1,4 +1,7 @@
-package com.cs440;
+package com.cs440.ship;
+
+import com.cs440.ship.Tile.Status;
+import com.cs440.ship.Tile.Type;
 
 public class Ship {
     public static final Tile.Type BLOCK = new Tile.Type('X', Tile.Status.BLOCKED);
