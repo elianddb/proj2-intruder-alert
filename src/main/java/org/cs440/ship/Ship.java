@@ -1,5 +1,6 @@
 package org.cs440.ship;
 
+import java.util.HashMap;
 import java.util.HashSet;
 
 public class Ship {
@@ -8,7 +9,7 @@ public class Ship {
     public static final Tile.Type OCCUPIED = new Tile.Type('O', Tile.Status.OCCUPIED);
 
     protected Tile[][] tiles;
-    HashSet<Tile> openTiles = new HashSet<Tile>();
+    protected HashMap<Tile.Type, HashSet<Tile>> tileSets = new HashMap<>();
 
     /**
      * Create a new Ship with the given width and height. All tiles are initially blocked.
@@ -18,9 +19,16 @@ public class Ship {
      */
     public Ship(int width, int height) {
         tiles = new Tile[height][width];
+        
+        tileSets = new HashMap<>();
+        tileSets.put(OPEN, new HashSet<Tile>());
+        tileSets.put(BLOCK, new HashSet<Tile>());
+        tileSets.put(OCCUPIED, new HashSet<Tile>());
+
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 tiles[y][x] = new Tile(BLOCK, x, y);
+                tileSets.get(BLOCK).add(tiles[y][x]);
             }
         }
     }
@@ -50,21 +58,13 @@ public class Ship {
 
     public void setTile(int x, int y, Tile.Type type) {
         enforceBounds(x, y);
-
         if (tiles[y][x].is(type)) {
             return;
         }
-
         enforceOwnership(x, y);
+        tileSets.get(tiles[y][x].type).remove(tiles[y][x]);
+        tileSets.get(type).add(tiles[y][x]);
 
-        if (tiles[y][x].is(OPEN)) {
-            openTiles.remove(tiles[y][x]);
-        }
-
-        if (type == OPEN) {
-            openTiles.add(tiles[y][x]);
-        }
-        
         tiles[y][x].set(type);
     }
 
@@ -78,6 +78,18 @@ public class Ship {
 
     public void occupyTile(int x, int y) {
         setTile(x, y, OCCUPIED);
+    }
+
+    public int numOfBlocks() {
+        return tileSets.get(BLOCK).size();
+    }
+
+    public int numOfOpen() {
+        return tileSets.get(OPEN).size();
+    }
+
+    public int numOfOccupied() {
+        return tileSets.get(OCCUPIED).size();
     }
 
     @Override
