@@ -14,6 +14,10 @@ public class Ship {
         }
     }
 
+    public Tile getTile(int x, int y) {
+        return tiles[y][x];
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
