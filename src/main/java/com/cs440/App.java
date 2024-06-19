@@ -2,6 +2,7 @@ package com.cs440;
 
 public class App {
     public static void main(String[] args) {
-        System.out.println("Hello World!");
+        Ship ship = new Ship(40, 40);
+        System.out.println(ship);
     }
 }
