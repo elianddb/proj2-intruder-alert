@@ -25,6 +25,22 @@ public class Tile {
             this.x = x;
             this.y = y;
         }
+
+        public Location up() {
+            return new Location(x, y - 1);
+        }
+
+        public Location down() {
+            return new Location(x, y + 1);
+        }
+
+        public Location left() {
+            return new Location(x - 1, y);
+        }
+
+        public Location right() {
+            return new Location(x + 1, y);
+        }
     }
     
     protected Type type;
