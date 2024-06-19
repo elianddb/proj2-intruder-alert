@@ -33,9 +33,18 @@ public class AppTest {
         }
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void getTile_OutOfBounds_ThrowsIAE() {
         Ship ship = new Ship(40, 40);
-        ship.getTile(-1, -1);
+        int[][] tests = {{-1, 0}, {0, -1}, {40, 0}, {0, 40}, {40, 40}, {-1, -1}};
+        int thrown = 0;
+        for (int[] test : tests) {
+            try {
+                ship.getTile(test[0], test[1]);
+            } catch (IllegalArgumentException e) {
+                ++thrown;
+            }
+        }
+        assertTrue(thrown == tests.length);
     }
 }
