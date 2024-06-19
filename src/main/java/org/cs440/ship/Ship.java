@@ -39,22 +39,22 @@ public class Ship {
         return tiles[y][x];
     }
 
-    public void openTile(int x, int y) {
+    public void setTile(int x, int y, Tile.Type type) {
         enforceBounds(x, y);
         enforceOwnership(x, y);
-        getTile(x, y).set(OPEN);
+        tiles[y][x].set(type);
     }
 
-    public void occupyTile(int x, int y) {
-        enforceBounds(x, y);
-        enforceOwnership(x, y);
-        getTile(x, y).set(OCCUPIED);
+    public void openTile(int x, int y) {
+        setTile(x, y, OPEN);
     }
 
     public void blockTile(int x, int y) {
-        enforceBounds(x, y);
-        enforceOwnership(x, y);
-        getTile(x, y).set(BLOCK);
+        setTile(x, y, BLOCK);
+    }
+
+    public void occupyTile(int x, int y) {
+        setTile(x, y, OCCUPIED);
     }
 
     @Override
