@@ -1,12 +1,21 @@
 package org.cs440.ship;
 
+import java.util.HashSet;
+
 public class Ship {
     public static final Tile.Type BLOCK = new Tile.Type('X', Tile.Status.BLOCKED);
-    public static final Tile.Type EMPTY = new Tile.Type('.', Tile.Status.OPEN);
+    public static final Tile.Type OPEN = new Tile.Type('.', Tile.Status.OPEN);
     public static final Tile.Type OCCUPIED = new Tile.Type('O', Tile.Status.OCCUPIED);
 
     protected Tile[][] tiles;
+    HashSet<Tile> openTiles = new HashSet<Tile>();
 
+    /**
+     * Create a new Ship with the given width and height. All tiles are initially blocked.
+     * 
+     * @param width
+     * @param height
+     */
     public Ship(int width, int height) {
         tiles = new Tile[height][width];
         for (int y = 0; y < height; y++) {
@@ -41,12 +50,26 @@ public class Ship {
 
     public void setTile(int x, int y, Tile.Type type) {
         enforceBounds(x, y);
+
+        if (tiles[y][x].is(type)) {
+            return;
+        }
+
         enforceOwnership(x, y);
+
+        if (tiles[y][x].is(OPEN)) {
+            openTiles.remove(tiles[y][x]);
+        }
+
+        if (type == OPEN) {
+            openTiles.add(tiles[y][x]);
+        }
+        
         tiles[y][x].set(type);
     }
 
     public void openTile(int x, int y) {
-        setTile(x, y, EMPTY);
+        setTile(x, y, OPEN);
     }
 
     public void blockTile(int x, int y) {
