@@ -21,7 +21,7 @@ public class Ship {
             throw new IllegalArgumentException(String.format("x out of bounds: %d (width: %d)", x, width));
         }
         if (y < 0 || y >= tiles.length) {
-            throw new IllegalArgumentException(String.format("y out of bounds: %d (height: %d)", y, height);
+            throw new IllegalArgumentException(String.format("y out of bounds: %d (height: %d)", y, height));
         }
     }
 
