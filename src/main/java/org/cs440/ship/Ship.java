@@ -27,6 +27,12 @@ public class Ship {
         }
     }
 
+    public void enforceOwnership(int x, int y) {
+        Tile tile = getTile(x, y);
+        if (tile.is(OCCUPIED))
+            throw new IllegalArgumentException(String.format("Tile already occupied %s", tile));
+    }
+
     public Tile getTile(int x, int y) {
         enforceBounds(x, y);
         return tiles[y][x];
@@ -34,16 +40,19 @@ public class Ship {
 
     public void openTile(int x, int y) {
         enforceBounds(x, y);
+        enforceOwnership(x, y);
         getTile(x, y).set(OPEN);
     }
 
     public void occupyTile(int x, int y) {
         enforceBounds(x, y);
+        enforceOwnership(x, y);
         getTile(x, y).set(OCCUPIED);
     }
 
     public void blockTile(int x, int y) {
         enforceBounds(x, y);
+        enforceOwnership(x, y);
         getTile(x, y).set(BLOCK);
     }
 
