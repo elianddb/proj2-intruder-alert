@@ -33,6 +33,10 @@ public class Ship {
         }
     }
 
+    public boolean withinBounds(int x, int y) {
+        return x >= 0 && x < tiles[0].length && y >= 0 && y < tiles.length;
+    }
+
     public void enforceBounds(int x, int y) {
         int height = tiles.length;
         int width = tiles[0].length;
