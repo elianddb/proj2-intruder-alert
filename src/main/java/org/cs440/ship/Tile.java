@@ -1,5 +1,7 @@
 package org.cs440.ship;
 
+import java.util.ArrayList;
+
 public class Tile {
     public enum Status {
         OPEN,
@@ -40,6 +42,15 @@ public class Tile {
 
         public Location right() {
             return new Location(x + 1, y);
+        }
+
+        public ArrayList<Location> cardinalNeighbors() {
+            ArrayList<Location> neighbors = new ArrayList<>();
+            neighbors.add(up());
+            neighbors.add(down());
+            neighbors.add(left());
+            neighbors.add(right());
+            return neighbors;
         }
     }
     
