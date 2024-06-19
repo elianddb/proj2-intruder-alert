@@ -14,7 +14,19 @@ public class Ship {
         }
     }
 
+    public void enforceBounds(int x, int y) {
+        int height = tiles.length;
+        int width = tiles[0].length;
+        if (x < 0 || x >= tiles[0].length) {
+            throw new IllegalArgumentException(String.format("x out of bounds: %d (width: %d)", x, width));
+        }
+        if (y < 0 || y >= tiles.length) {
+            throw new IllegalArgumentException(String.format("y out of bounds: %d (height: %d)", y, height);
+        }
+    }
+
     public Tile getTile(int x, int y) {
+        enforceBounds(x, y);
         return tiles[y][x];
     }
 
