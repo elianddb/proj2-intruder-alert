@@ -3,7 +3,7 @@ package org.cs440.ship;
 public class Ship {
     public static final Tile.Type BLOCK = new Tile.Type('X', Tile.Status.BLOCKED);
     public static final Tile.Type OPEN = new Tile.Type('.', Tile.Status.OPEN);
-    public static final Tile.Type OCCUPIED = new Tile.Type('.', Tile.Status.OCCUPIED);
+    public static final Tile.Type OCCUPIED = new Tile.Type('O', Tile.Status.OCCUPIED);
 
     protected Tile[][] tiles;
 
@@ -29,8 +29,9 @@ public class Ship {
 
     public void enforceOwnership(int x, int y) {
         Tile tile = getTile(x, y);
-        if (tile.is(OCCUPIED))
+        if (tile.is(OCCUPIED)) {
             throw new IllegalArgumentException(String.format("Tile already occupied %s", tile));
+        }
     }
 
     public Tile getTile(int x, int y) {
