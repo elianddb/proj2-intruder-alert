@@ -9,7 +9,7 @@ import org.junit.Test;
  */
 public class AppTest {
     @Test
-    public void locationsMatch() {
+    public void ShipTile_Initialization_CorrectTileLocations() {
         Tile tile = new Tile('X', Tile.Status.BLOCKED, 0, 0);
         assertTrue(tile.location.x == 0);
         assertTrue(tile.location.y == 0);
@@ -24,7 +24,7 @@ public class AppTest {
     }
 
     @Test
-    public void correctTilesGot() {
+    public void getTile_InBounds_CorrectTile() {
         Ship ship = new Ship(40, 40);
         for (int x = 0; x < 40; x++) {
             for (int y = 0; y < 40; y++) {
@@ -34,7 +34,7 @@ public class AppTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void throwsOutOfBounds() {
+    public void getTile_OutOfBounds_ThrowsIAE() {
         Ship ship = new Ship(40, 40);
         ship.getTile(-1, -1);
     }
