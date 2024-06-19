@@ -35,6 +35,10 @@ public class Tile {
         this.location = location;
     }
 
+    public Tile(Type type, int x, int y) {
+        this(type, new Location(x, y));
+    }
+
     public Tile(char identifier, Status status, int x, int y) {
         this(new Type(identifier, status), new Location(x, y));
     }
