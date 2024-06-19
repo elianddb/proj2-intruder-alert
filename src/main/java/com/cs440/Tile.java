@@ -42,4 +42,9 @@ public class Tile {
     public Tile(char identifier, Status status, int x, int y) {
         this(new Type(identifier, status), new Location(x, y));
     }
+
+    @Override
+    public String toString() {
+        return String.format("%c(%d, %d): %s", type.identifier, location.x, location.y, type.status);
+    }
 }
