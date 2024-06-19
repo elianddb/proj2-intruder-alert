@@ -9,7 +9,7 @@ public class Ship {
     public static final Tile.Type OCCUPIED = new Tile.Type('O', Tile.Status.OCCUPIED);
 
     protected Tile[][] tiles;
-    protected HashMap<Tile.Type, HashSet<Tile>> tileSets = new HashMap<>();
+    protected HashMap<Tile.Type, HashSet<Tile>> tileSets;
 
     /**
      * Create a new Ship with the given width and height. All tiles are initially blocked.
