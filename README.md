@@ -14,7 +14,7 @@ Make sure you have the following extensions:
 - Project Manager for Java
 - Test Runner for Java
 
-Then once you've cloned the repo press the Run button at the top right while your on the `App.java` file.
+Then once you've cloned the repo press the Run button at the top right while on the `App.java` file.
 
 ### General
 Download and setup [Maven](https://maven.apache.org/install.html) with the necessary environment variables.
