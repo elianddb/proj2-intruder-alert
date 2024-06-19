@@ -1,8 +1,8 @@
-package com.cs440;
+package org.cs440;
 
 import java.io.IOException;
 
-import com.cs440.ship.Ship;
+import org.cs440.ship.Ship;
 
 public class App {
     public static void main(String[] args) throws IOException {

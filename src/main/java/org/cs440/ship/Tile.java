@@ -1,4 +1,4 @@
-package com.cs440.ship;
+package org.cs440.ship;
 
 public class Tile {
     public enum Status {

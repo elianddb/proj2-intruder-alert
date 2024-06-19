@@ -1,7 +1,9 @@
-package com.cs440.ship;
+package org.cs440.ship;
 
 import static org.junit.Assert.assertTrue;
 
+import org.cs440.ship.Ship;
+import org.cs440.ship.Tile;
 import org.junit.Test;
 
 /**
@@ -21,5 +23,21 @@ public class AppTest {
                 assertTrue(ship.tiles[y][x].location.y == y);
             }
         }
+    }
+
+    @Test
+    public void correctTilesGot() {
+        Ship ship = new Ship(40, 40);
+        for (int x = 0; x < 40; x++) {
+            for (int y = 0; y < 40; y++) {
+                assertTrue(ship.getTile(x, y) == ship.tiles[y][x]);
+            }
+        }
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void throwsOutOfBounds() {
+        Ship ship = new Ship(40, 40);
+        ship.getTile(-1, -1);
     }
 }
