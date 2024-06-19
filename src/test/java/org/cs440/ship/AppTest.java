@@ -2,8 +2,6 @@ package org.cs440.ship;
 
 import static org.junit.Assert.assertTrue;
 
-import org.cs440.ship.Ship;
-import org.cs440.ship.Tile;
 import org.junit.Test;
 
 /**
