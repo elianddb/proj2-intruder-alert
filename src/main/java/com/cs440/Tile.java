@@ -1,17 +1,23 @@
 package com.cs440;
 
 public class Tile {
-    public enum Type {
-        EMPTY,
-        BLOCK
-    }
-
     public enum Status {
         OPEN,
-        CLOSED
+        BLOCKED,
+        OCCUPIED
     }
 
-    public class Location {
+    public static class Type {
+        protected char identifier;
+        protected Status status;
+
+        public Type(char identifier, Status status) {
+            this.identifier = identifier;
+            this.status = status;
+        }
+    }
+
+    public static class Location {
         public int x;
         public int y;
 
@@ -21,15 +27,15 @@ public class Tile {
         }
     }
     
-    protected char sprite;
     protected Type type;
-    protected Status status;
     protected Location location;
 
-    public Tile(int x, int y, char sprite, Type type, Status status) {
-        this.sprite = sprite;
+    public Tile(Type type, Location location) {
         this.type = type;
-        this.status = Status.OPEN;
-        this.location = new Location(x, y);
+        this.location = location;
+    }
+
+    public Tile(char identifier, Status status, int x, int y) {
+        this(new Type(identifier, status), new Location(x, y));
     }
 }
