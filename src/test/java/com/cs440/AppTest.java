@@ -8,5 +8,18 @@ import org.junit.Test;
  * Unit test for simple App.
  */
 public class AppTest {
-    
+    @Test
+    public void locationsMatch() {
+        Tile tile = new Tile('X', Tile.Status.BLOCKED, 0, 0);
+        assertTrue(tile.location.x == 0);
+        assertTrue(tile.location.y == 0);
+
+        Ship ship = new Ship(40, 40);
+        for (int x = 0; x < 40; x++) {
+            for (int y = 0; y < 40; y++) {
+                assertTrue(ship.tiles[x][y].location.x == x);
+                assertTrue(ship.tiles[x][y].location.y == y);
+            }
+        }
+    }
 }
