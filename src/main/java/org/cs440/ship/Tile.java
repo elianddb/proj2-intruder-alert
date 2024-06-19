@@ -8,8 +8,8 @@ public class Tile {
     }
 
     public static class Type {
-        protected char identifier;
-        protected Status status;
+        protected final char identifier;
+        protected final Status status;
 
         public Type(char identifier, Status status) {
             this.identifier = identifier;
@@ -49,6 +49,10 @@ public class Tile {
 
     public boolean is(Type type) {
         return this.type == type;
+    }
+    
+    public void set(Type type) {
+        this.type = type;
     }
 
     @Override
