@@ -3,7 +3,7 @@ package com.cs440;
 public class Tile {
     public enum Type {
         EMPTY,
-        WALL
+        BLOCK
     }
 
     public enum Status {
