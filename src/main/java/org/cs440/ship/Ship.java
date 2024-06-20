@@ -169,6 +169,25 @@ public class Ship {
         enforceOwnership(location.x, location.y);
     }
 
+    public Location request(Location entityLoc, Location targetLoc) {
+        enforceBounds(entityLoc);
+        if (!getTile(entityLoc).is(OCCUPIED)) {
+            throw new IllegalArgumentException(String.format("Entity not at OCCUPIED tile %s", entityLoc));
+        }
+
+        enforceBounds(targetLoc);
+        if (getTile(entityLoc).is(OPEN)) {
+            return targetLoc;
+        }
+
+        return entityLoc;
+    }
+
+    public Location requestOpen() {
+        ArrayList<Tile> openTiles = new ArrayList<>(tileSets.get(OPEN));
+        return openTiles.get((int) (Math.random() * openTiles.size())).location;
+    }
+
     public Tile getTile(int x, int y) {
         enforceBounds(x, y);
         return tiles[y][x];
