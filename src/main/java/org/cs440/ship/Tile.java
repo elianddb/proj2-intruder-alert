@@ -18,12 +18,20 @@ public class Tile {
     }
 
     public static class Location {
-        public int x;
-        public int y;
+        protected int x;
+        protected int y;
 
         public Location(int x, int y) {
             this.x = x;
             this.y = y;
+        }
+
+        public int x() {
+            return x;
+        }
+
+        public int y() {
+            return y;
         }
 
         public Location up() {
