@@ -29,13 +29,13 @@ public abstract class Entity {
         }
 
         this.ship = ship;
-        this.location = ship.requestOpen();
-        ship.occupyTile(this.location);
+        this.location = ship.requestOpen(); // Returns new Location object
+        ship.setTile(location, Ship.OCCUPIED);
         this.identifier = identifier;
     }
 
     public void move(Direction direction) {
-        Location target = new Location(location.x + direction.dx, location.y + direction.dy);
+        Location target = new Location(location.x() + direction.dx, location.y() + direction.dy);
         if (!ship.withinBounds(target)) {
             return;
         }
