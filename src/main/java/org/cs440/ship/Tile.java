@@ -45,6 +45,18 @@ public class Tile {
         public Location[] cardinalNeighbors() {
             return new Location[] {up(), down(), left(), right()};
         }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null || getClass() != obj.getClass()) {
+                return false;
+            }
+            Location location = (Location) obj;
+            return x == location.x && y == location.y;
+        }
     }
     
     protected Type type;
