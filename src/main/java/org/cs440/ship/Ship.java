@@ -27,6 +27,7 @@ public class Ship {
         tiles = new Tile[height][width];
         
         // Setup tile sets for the above common blocks
+        // Make sure to do first before using tile modification methods
         tileSets = new HashMap<>();
         tileSets.put(OPEN, new HashSet<Tile>());
         tileSets.put(BLOCK, new HashSet<Tile>());
@@ -64,7 +65,7 @@ public class Ship {
         HashSet<Tile> obseleteDeadEnds = new HashSet<>(); // OPEN tiles with more than one OPEN neighbor
         while (!potentialPaths.isEmpty()) {
             // Randomly open a potential path
-            ArrayList<Tile> rand = new ArrayList<>(potentialPaths);
+            ArrayList<Tile> rand = new ArrayList<>(potentialPaths); // Ramdom access
             Tile path = rand.get((int) (Math.random() * rand.size()));
             openTile(path.location);
             potentialPaths.remove(path);
@@ -77,7 +78,7 @@ public class Ship {
                 }
                 
                 Tile neighbor = getTile(location);
-                if (neighbor.is(OPEN)) { 
+                if (neighbor.is(OPEN)) { // Keeps track of deadEnds
                     ++openNeighbors;
                     // The OPEN neighbor would have two OPEN neighbors implcitly now
                     // since the path above is now OPEN
@@ -128,7 +129,7 @@ public class Ship {
                 }
             }
 
-            deadEnds.remove(deadEnd); // Now an obselete dead end due to the new OPEN neighbor
+            deadEnds.remove(deadEnd); // Initial deadEnd is now OPEN due to new open neighbor
         }
 
         this.deadEnds = deadEnds;
