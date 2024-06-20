@@ -42,5 +42,4 @@ public class stochasticMouse extends Mouse{
     public void moveDown() {
         move(currentX, currentY + 1);
     }
-
 }
