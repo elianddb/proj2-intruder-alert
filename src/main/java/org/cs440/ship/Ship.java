@@ -11,8 +11,10 @@ public class Ship {
     public static final Type BLOCK = new Tile.Type('X', Tile.Status.BLOCKED);
     public static final Type OPEN = new Tile.Type('.', Tile.Status.OPEN);
     public static final Type OCCUPIED = new Tile.Type('O', Tile.Status.OCCUPIED);
+    public static final Type UNKNOWN = new Tile.Type('?', null);
 
     protected Tile[][] tiles;
+    protected HashSet<Tile> deadEnds;
     protected HashMap<Type, HashSet<Tile>> tileSets;
 
     /**
@@ -44,7 +46,92 @@ public class Ship {
         openTile(x, y);
 
         // Generate paths
-        
+        // Gather all potential paths (BLOCKs) around the first OPEN tile
+        // Essentially satisfying that all BLOCKs are next to *one* OPEN tile 
+        HashSet<Tile> potentialPaths = new HashSet<>();
+        for (Tile tile : tileSets.get(OPEN)) {
+            for (Location location : tile.location.cardinalNeighbors()) {
+                if (withinBounds(location) && getTile(location).is(BLOCK)) {
+                    potentialPaths.add(getTile(location));
+                }
+            }
+        }
+
+        // Open potential paths until no more are available on the following conditions:
+        // 1. BLOCK has one open neighbor
+        HashSet<Tile> obseletePotentialPaths = new HashSet<>(); // BLOCKs that have more than one OPEN neighbor
+        HashSet<Tile> deadEnds = new HashSet<>(); // OPEN tiles with one OPEN neighbor
+        HashSet<Tile> obseleteDeadEnds = new HashSet<>(); // OPEN tiles with more than one OPEN neighbor
+        while (!potentialPaths.isEmpty()) {
+            // Randomly open a potential path
+            ArrayList<Tile> rand = new ArrayList<>(potentialPaths);
+            Tile path = rand.get((int) (Math.random() * rand.size()));
+            openTile(path.location);
+            potentialPaths.remove(path);
+
+            // Append new neighboring potential paths from the newly opened path
+            int openNeighbors = 0;
+            for (Location location : path.location.cardinalNeighbors()) {
+                if (!withinBounds(location)) {
+                    continue;
+                }
+                
+                Tile neighbor = getTile(location);
+                if (neighbor.is(OPEN)) { 
+                    ++openNeighbors;
+                    // The OPEN neighbor would have two OPEN neighbors implcitly now
+                    // since the path above is now OPEN
+                    if (deadEnds.contains(neighbor)) { 
+                        deadEnds.remove(neighbor);
+                        obseleteDeadEnds.add(neighbor);
+                    }
+                    continue;
+                }
+                
+                if (obseletePotentialPaths.contains(neighbor)) {
+                    continue;
+                }
+                
+                // Remove BLOCKs already in the potential paths because this means
+                // they neighbor more than one OPEN tile
+                if (potentialPaths.contains(neighbor)) {
+                    potentialPaths.remove(neighbor);
+                    obseletePotentialPaths.add(neighbor);
+                    continue;
+                }
+
+                potentialPaths.add(neighbor);
+            }
+
+            if (openNeighbors == 1) {
+                deadEnds.add(path);
+            }
+        }
+
+        // Pick half of dead ends and open a random neighbor
+        ArrayList<Tile> deadEndsItems = new ArrayList<>(deadEnds); // Random access
+        for (int i = 0; i < deadEnds.size() / 2; i++) {
+            Tile deadEnd = deadEndsItems.get(i);
+            ArrayList<Location> blockNeighbors = new ArrayList<>();
+            for (Location cardinalNeighbor : deadEnd.location.cardinalNeighbors()) { // Filter out OPEN neighbors
+                if (withinBounds(cardinalNeighbor) && getTile(cardinalNeighbor).is(BLOCK)) {
+                    blockNeighbors.add(cardinalNeighbor);
+                }
+            }
+            Location neighbor = blockNeighbors.get((int) (Math.random() * blockNeighbors.size()));
+            openTile(neighbor);
+
+            for (Location cardinalNeighbor : neighbor.cardinalNeighbors()) { // Remove new obselete dead ends
+                if (withinBounds(cardinalNeighbor) && getTile(cardinalNeighbor).is(OPEN)) {
+                    deadEnds.remove(getTile(cardinalNeighbor));
+                    deadEndsItems.remove(getTile(cardinalNeighbor));
+                }
+            }
+
+            deadEnds.remove(deadEnd); // Now an obselete dead end due to the new OPEN neighbor
+        }
+
+        this.deadEnds = deadEnds;
     }
 
     public boolean withinBounds(int x, int y) {
@@ -140,6 +227,10 @@ public class Ship {
 
     public int numOfOccupied() {
         return tileSets.get(OCCUPIED).size();
+    }
+
+    public int numOfDeadEnds() {
+        return deadEnds.size();
     }
 
     @Override
