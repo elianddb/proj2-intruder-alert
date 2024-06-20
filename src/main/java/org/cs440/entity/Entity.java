@@ -35,14 +35,11 @@ public abstract class Entity {
     }
 
     public void move(Direction direction) {
-        Location targetLoc = new Location(location.x + direction.dx, location.y + direction.dy);
-        if (!ship.withinBounds(targetLoc)) {
+        Location target = new Location(location.x + direction.dx, location.y + direction.dy);
+        if (!ship.withinBounds(target)) {
             return;
         }
 
-        this.location = ship.request(this.location, targetLoc);
-        if (this.location.equals(targetLoc)) {
-            ship.occupyTile(this.location);
-        }
+        ship.requestTransfer(location, target);
     }
 }
