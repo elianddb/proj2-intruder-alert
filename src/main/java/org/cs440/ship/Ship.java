@@ -172,19 +172,21 @@ public class Ship {
     public void requestTransfer(Location location, Location target) {
         enforceBounds(location);
         if (!getTile(location).is(OCCUPIED)) {
-            throw new IllegalArgumentException(String.format("Entity not at OCCUPIED tile %s", location));
+            throw new IllegalArgumentException(String.format("Entity not on OCCUPIED %s", location));
         }
 
         enforceBounds(target);
         if (getTile(location).is(OPEN)) {
             location.x = target.x;
             location.y = target.y;
+            openTile(location);
         }
     }
 
     public Location requestOpen() {
         ArrayList<Tile> openTiles = new ArrayList<>(tileSets.get(OPEN));
-        return openTiles.get((int) (Math.random() * openTiles.size())).location;
+        Location location = openTiles.get((int) (Math.random() * openTiles.size())).location;
+        return new Location(location.x, location.y);
     }
 
     public Tile getTile(int x, int y) {
@@ -198,10 +200,11 @@ public class Ship {
 
     public void setTile(int x, int y, Tile.Type type) {
         enforceBounds(x, y);
-        if (tiles[y][x].is(type)) {
+        if (tiles[y][x].is(type)) { // No need to update
             return;
         }
         enforceOwnership(x, y);
+        // Update related tile set
         tileSets.get(tiles[y][x].type).remove(tiles[y][x]);
         tileSets.get(type).add(tiles[y][x]);
 
@@ -226,14 +229,6 @@ public class Ship {
 
     public void blockTile(Location location) {
         blockTile(location.x, location.y);
-    }
-
-    public void occupyTile(int x, int y) {
-        setTile(x, y, OCCUPIED);
-    }
-
-    public void occupyTile(Location location) {
-        occupyTile(location.x, location.y);
     }
 
     public int numOfBlocks() {
