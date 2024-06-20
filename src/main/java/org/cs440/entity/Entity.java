@@ -1,5 +1,6 @@
 package org.cs440.entity;
 
+import org.cs440.ship.Ship;
 import org.cs440.ship.Tile.Location;
 
 public abstract class Entity {
@@ -18,20 +19,30 @@ public abstract class Entity {
         }
     }
 
+    protected Ship ship;
     protected char identifier;
     protected Location location;
 
-    public Entity(char identifier, Location location) {
-        this.identifier = identifier;
-        this.location = location;
-    }
+    public Entity(Ship ship, char identifier) {
+        if (ship == null) {
+            throw new IllegalArgumentException("Ship cannot be null");
+        }
 
-    public Entity(char identifier, int x, int y) {
-        this(identifier, new Location(x, y));
+        this.ship = ship;
+        this.location = ship.requestOpen();
+        ship.occupyTile(this.location);
+        this.identifier = identifier;
     }
 
     public void move(Direction direction) {
-        location.x += direction.dx;
-        location.y += direction.dy;
+        Location targetLoc = new Location(location.x + direction.dx, location.y + direction.dy);
+        if (!ship.withinBounds(targetLoc)) {
+            return;
+        }
+
+        this.location = ship.request(this.location, targetLoc);
+        if (this.location.equals(targetLoc)) {
+            ship.occupyTile(this.location);
+        }
     }
 }
