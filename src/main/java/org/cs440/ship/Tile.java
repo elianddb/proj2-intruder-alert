@@ -65,6 +65,11 @@ public class Tile {
             Location location = (Location) obj;
             return x == location.x && y == location.y;
         }
+
+        @Override
+        public String toString() {
+            return String.format("(%d, %d)", x, y);
+        }
     }
     
     protected Type type;
@@ -81,6 +86,15 @@ public class Tile {
 
     public Tile(char identifier, Status status, int x, int y) {
         this(new Type(identifier, status), new Location(x, y));
+    }
+
+    public Location location() {
+        // Prevents entities from modifying foreign OCCUPIED tiles
+        if (is(Status.OCCUPIED)) {
+            throw new IllegalStateException("Cannot access location of occupied tile");
+        }
+
+        return location;
     }
 
     public boolean is(Status status) {
