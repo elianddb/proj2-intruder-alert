@@ -8,9 +8,9 @@ import org.cs440.ship.Tile.Type;
 import org.cs440.ship.Tile.Location;
 
 public class Ship {
-    public static final Type BLOCK = new Tile.Type('X', Tile.Status.BLOCKED);
+    public static final Type BLOCK = new Tile.Type('+', Tile.Status.BLOCKED);
     public static final Type OPEN = new Tile.Type('.', Tile.Status.OPEN);
-    public static final Type OCCUPIED = new Tile.Type('O', Tile.Status.OCCUPIED);
+    public static final Type OCCUPIED = new Tile.Type('x', Tile.Status.OCCUPIED);
     public static final Type UNKNOWN = new Tile.Type('?', null);
 
     protected Tile[][] tiles;

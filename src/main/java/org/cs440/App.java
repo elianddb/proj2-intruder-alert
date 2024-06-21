@@ -9,7 +9,7 @@ public class App {
     public static void main(String[] args) throws IOException {
         Ship ship = new Ship(40, 40);
         Simulation simulation = new Simulation(ship);
-        Bot bot = new Bot('B');
+        Bot bot = new Bot('A');
         simulation.addEntity(bot);
         System.out.println(simulation);
 
