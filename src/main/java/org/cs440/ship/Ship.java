@@ -166,27 +166,19 @@ public class Ship {
     }
 
     public void enforceOwnership(Location location) {
-        enforceOwnership(location.x, location.y);
-    }
-
-    public void requestTransfer(Location location, Location target) {
-        enforceBounds(location);
-        if (!getTile(location).is(OCCUPIED)) {
-            throw new IllegalArgumentException(String.format("Entity not on OCCUPIED %s", location));
+        Tile tile = getTile(location);
+        if (!tile.is(OCCUPIED)) {
+            return;
         }
 
-        enforceBounds(target);
-        if (getTile(location).is(OPEN)) {
-            location.x = target.x;
-            location.y = target.y;
-            openTile(location);
+        if (tile.location != location) {
+            throw new IllegalArgumentException(String.format("Tile already occupied %s", tile));
         }
     }
 
     public Location requestOpen() {
         ArrayList<Tile> openTiles = new ArrayList<>(tileSets.get(OPEN));
-        Location location = openTiles.get((int) (Math.random() * openTiles.size())).location;
-        return new Location(location.x, location.y);
+        return openTiles.get((int) (Math.random() * openTiles.size())).location;
     }
 
     public Tile getTile(int x, int y) {
@@ -212,7 +204,18 @@ public class Ship {
     }
 
     public void setTile(Location location, Tile.Type type) {
-        setTile(location.x, location.y, type);
+        enforceBounds(location);
+        Tile tile = getTile(location);
+        if (tile.is(type)) { // No need to update
+            return;
+        }
+
+        enforceOwnership(location);
+        // Update related tile set
+        tileSets.get(tile.type).remove(tile);
+        tileSets.get(type).add(tile);
+
+        tile.set(type);
     }
 
     public void openTile(int x, int y) {
