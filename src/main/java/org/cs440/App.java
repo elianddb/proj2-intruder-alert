@@ -7,7 +7,7 @@ import org.cs440.ship.Ship;
 
 public class App {
     public static void main(String[] args) throws IOException {
-        Ship ship = new Ship(4, 4);
+        Ship ship = new Ship(40, 40);
         Simulation simulation = new Simulation(ship);
         Bot bot = new Bot('B');
         simulation.addEntity(bot);
