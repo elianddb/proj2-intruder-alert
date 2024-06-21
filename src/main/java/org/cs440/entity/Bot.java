@@ -21,6 +21,8 @@ public class Bot extends Entity implements Movement {
             return;
         }
 
+        // You cannot change the state of a Tile without
+        // the original Location object.
         ship.setTile(location, Ship.OPEN);
         location = target.location();
 
