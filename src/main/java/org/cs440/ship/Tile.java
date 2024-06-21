@@ -97,6 +97,10 @@ public class Tile {
         return location;
     }
 
+    public char identifier() {
+        return type.identifier;
+    }
+
     public boolean is(Status status) {
         return type.status == status;
     }

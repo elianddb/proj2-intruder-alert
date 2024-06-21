@@ -7,7 +7,7 @@ public class Bot extends Entity implements Movement {
     public Bot(char identifier) {
         super(identifier);
     }
-    
+
     @Override
     public void move(Direction direction) {
         int x = location.x() + direction.dx;

@@ -250,6 +250,14 @@ public class Ship {
         return deadEnds.size();
     }
 
+    public int width() {
+        return tiles[0].length;
+    }
+
+    public int height() {
+        return tiles.length;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

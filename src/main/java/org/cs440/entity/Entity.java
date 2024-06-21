@@ -12,6 +12,14 @@ public abstract class Entity {
         this.identifier = identifier;
     }
 
+    public Location location() {
+        return location;
+    }
+
+    public char identifier() {
+        return identifier;
+    }
+
     public void link(Ship ship) {
         this.ship = ship;
         this.location = ship.requestOpen();
