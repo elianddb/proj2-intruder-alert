@@ -4,10 +4,10 @@ import org.cs440.ship.Ship;
 import org.cs440.ship.Tile;
 
 public class Bot extends Entity implements Movement {
-    public Bot(Ship ship, char identifier) {
-        super(ship, identifier);
+    public Bot(char identifier) {
+        super(identifier);
     }
-
+    
     @Override
     public void move(Direction direction) {
         int x = location.x() + direction.dx;
