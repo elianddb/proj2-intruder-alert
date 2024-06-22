@@ -9,7 +9,6 @@ import org.cs440.ship.Ship;
 import org.cs440.ship.Tile;
 import java.util.Queue;
 import java.util.LinkedList;
-import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -67,12 +66,14 @@ public class Simulation {
             // could cause a deadlock (Thread waiting for another
             // thread to release a piece of memory).
             synchronized(frameBuffer) {
-                if (frameBuffer.size() >= BUFFER_SIZE)
-                continue;
+                if (frameBuffer.size() >= BUFFER_SIZE) {
+                    continue;
+                } else {
+                    frameBuffer.add(toString());
+                }
             }
             
             // Queue new frame state
-            frameBuffer.add(toString());
             for (Action action : actions.values()) {
                 action.act();
             }
