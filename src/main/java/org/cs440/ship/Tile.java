@@ -89,7 +89,7 @@ public class Tile {
     }
 
     public Location location() {
-        // Prevents entities from modifying foreign OCCUPIED tiles
+        // Prevents agents from modifying each others OCCUPIED tiles
         if (is(Status.OCCUPIED)) {
             throw new IllegalStateException("Cannot access location of occupied tile");
         }
