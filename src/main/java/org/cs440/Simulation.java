@@ -62,12 +62,12 @@ public class Simulation {
 
 
         while (true) {
-            // Queue new frame state
             synchronized(frameBuffer) {
                 if (frameBuffer.size() >= BUFFER_SIZE)
-                    continue;
+                continue;
             }
-
+            
+            // Queue new frame state
             frameBuffer.add(toString());
             for (Action action : actions.values()) {
                 action.act();

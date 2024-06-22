@@ -1,5 +1,6 @@
 package org.cs440.agent;
 
+import org.cs440.App;
 import org.cs440.agent.Agent.Action;
 import org.cs440.agent.Agent.Movement;
 import org.cs440.ship.Ship;
@@ -39,6 +40,6 @@ public class Bot extends Agent implements Movement, Action {
     @Override
     public void act() {
         // TODO implement Bot action
-        System.out.println("Bot action executed!");
+        App.logger.debug("Bot action executed!");
     }
 }
