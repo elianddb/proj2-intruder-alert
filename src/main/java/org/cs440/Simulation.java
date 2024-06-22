@@ -55,7 +55,7 @@ public class Simulation {
                 System.out.println(frameBuffer.poll());
 
                 App.logger.debug(String.format("Buffer size: %d", frameBuffer.size()));
-                App.logger.debug(String.format("Frame %d", ++frameCounter[0]));
+                App.logger.info(String.format("Frame %d", ++frameCounter[0]));
             }
         }, 100, ms, TimeUnit.MILLISECONDS);
 
