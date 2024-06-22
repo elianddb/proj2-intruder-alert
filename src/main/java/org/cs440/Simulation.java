@@ -66,16 +66,16 @@ public class Simulation {
             // could cause a deadlock (Thread waiting for another
             // thread to release a piece of memory).
             synchronized(frameBuffer) {
-                if (frameBuffer.size() >= BUFFER_SIZE) {
-                    continue;
-                } else {
+                if (frameBuffer.size() < BUFFER_SIZE) {
                     frameBuffer.add(toString());
+                } else {
+                    continue;
                 }
             }
             
             // Queue new frame state
             for (Action action : actions.values()) {
-                action.act();
+                action.perform();
             }
         }
     }
@@ -93,8 +93,9 @@ public class Simulation {
                     sb.append(tile.identifier());
                 }
 
-                sb.append(x < ship.width() - 1 ? ' ' : '\n');
+                sb.append(x < ship.width() - 1 ? " " : "");
             }
+            sb.append(y < ship.height() - 1 ? "\n" : "");
         }
 
         return sb.toString();
