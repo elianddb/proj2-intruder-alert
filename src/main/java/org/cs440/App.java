@@ -14,8 +14,12 @@ public class App {
         
         Ship ship = new Ship(40, 40);
         Simulation simulation = new Simulation(ship);
-        simulation.addAgent(new Bot('B'));
-        simulation.addAgent(new StationaryMouse('M'));
+        
+        Bot bot = new Bot('A');
+        StationaryMouse mouse = new StationaryMouse('M');
+
+        simulation.addAgent(bot);
+        simulation.addAgent(mouse);
         simulation.run(1000);
 
         System.out.println("Press Enter to exit...");
