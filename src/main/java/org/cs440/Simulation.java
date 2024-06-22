@@ -1,33 +1,78 @@
 package org.cs440;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
-import org.cs440.entity.Entity;
+import org.cs440.agent.Agent;
+import org.cs440.agent.Agent.Action;
 import org.cs440.ship.Ship;
 import org.cs440.ship.Tile;
+import java.util.Queue;
+import java.util.LinkedList;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 
 public class Simulation {
     private Ship ship;
-    private ArrayList<Entity> entities;
+    private ArrayList<Agent> agents;
+    private HashMap<Agent, Action> actions;
 
     public Simulation(Ship ship) {
         this.ship = ship;
-        this.entities = new ArrayList<Entity>();
+        this.agents = new ArrayList<>();
+        this.actions = new HashMap<>();
     }
 
-    public void addEntity(Entity entity) {
-        entity.link(ship);
-        entities.add(entity);
+    public void addAgent(Agent agent) {
+        agent.link(ship);
+        agents.add(agent);
+        if (agent instanceof Action) {
+            actions.put(agent, (Action) agent);
+        }
     }
 
-    public Entity getEntity(int x, int y) {
-        for (Entity entity : entities) {
-            if (entity.location().x() == x && entity.location().y() == y) {
-                return entity;
+    public Agent getAgent(int x, int y) {
+        for (Agent agent : agents) {
+            if (agent.location().x() == x && agent.location().y() == y) {
+                return agent;
             }
         }
 
         return null;
+    }
+
+    public void run(int ms) {
+        Queue<String> frameBuffer = new LinkedList<>();
+        final int BUFFER_SIZE = 20;
+
+        ScheduledExecutorService drawScheduler = Executors.newSingleThreadScheduledExecutor();
+        
+        final int[] frameCounter = {0}; 
+        drawScheduler.scheduleWithFixedDelay(() -> {
+            if (!frameBuffer.isEmpty()) {
+                System.out.println(frameBuffer.poll());
+
+                App.logger.debug(String.format("Buffer size: %d", frameBuffer.size()));
+                App.logger.debug(String.format("Frame %d", ++frameCounter[0]));
+            }
+        }, 100, ms, TimeUnit.MILLISECONDS);
+
+
+        while (true) {
+            // Queue new frame state
+            synchronized(frameBuffer) {
+                if (frameBuffer.size() >= BUFFER_SIZE)
+                    continue;
+            }
+
+            frameBuffer.add(toString());
+            for (Action action : actions.values()) {
+                action.act();
+            }
+        }
     }
 
     @Override
@@ -37,7 +82,7 @@ public class Simulation {
             for (int x = 0; x < ship.width(); x++) {
                 Tile tile = ship.getTile(x, y);
                 if (tile.is(Ship.OCCUPIED)) {
-                    Entity entity = getEntity(x, y);
+                    Agent entity = getAgent(x, y);
                     sb.append(entity.identifier());
                 } else {
                     sb.append(tile.identifier());
