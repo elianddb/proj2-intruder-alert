@@ -45,12 +45,12 @@ public class Simulation {
     }
 
     public void run(int ms) {
-        Queue<String> frameBuffer = new LinkedList<>();
+        // Drawing frames on a separate thread helps avoid hitching
+        // from calculating agents' actions
         final int BUFFER_SIZE = 20;
-
-        ScheduledExecutorService drawScheduler = Executors.newSingleThreadScheduledExecutor();
-        
         final int[] frameCounter = {0}; 
+        Queue<String> frameBuffer = new LinkedList<>();
+        ScheduledExecutorService drawScheduler = Executors.newSingleThreadScheduledExecutor();
         drawScheduler.scheduleWithFixedDelay(() -> {
             if (!frameBuffer.isEmpty()) {
                 System.out.println(frameBuffer.poll());
@@ -62,6 +62,10 @@ public class Simulation {
 
 
         while (true) {
+            // We only want to lock the frame buffer when necessary.
+            // Including agents' actions in this synchronized block
+            // could cause a deadlock (Thread waiting for another
+            // thread to release a piece of memory).
             synchronized(frameBuffer) {
                 if (frameBuffer.size() >= BUFFER_SIZE)
                 continue;
