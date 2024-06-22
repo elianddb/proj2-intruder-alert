@@ -46,6 +46,6 @@ public abstract class Agent {
     }
     
     public static interface Action {
-        public void act();
+        public void perform();
     }
 }

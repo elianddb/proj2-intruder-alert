@@ -38,7 +38,7 @@ public class Bot extends Agent implements Movement, Action {
     }
 
     @Override
-    public void act() {
+    public void perform() {
         // TODO implement Bot action
         App.logger.debug("Bot action executed!");
     }
