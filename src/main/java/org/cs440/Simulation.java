@@ -7,6 +7,7 @@ import org.cs440.agent.Agent;
 import org.cs440.agent.Agent.Action;
 import org.cs440.ship.Ship;
 import org.cs440.ship.Tile;
+
 import java.util.Queue;
 import java.util.LinkedList;
 import java.util.concurrent.Executors;
@@ -18,6 +19,7 @@ public class Simulation {
     private Ship ship;
     private ArrayList<Agent> agents;
     private HashMap<Agent, Action> actions;
+    private boolean running = false;
 
     public Simulation(Ship ship) {
         this.ship = ship;
@@ -43,28 +45,39 @@ public class Simulation {
         return null;
     }
 
+    public void stop() {
+        running = false;
+    }
+
     public void run(int ms) {
+        running = true;
+        System.out.print("\033[2J"); // Clear command line prompt
         // Drawing frames on a separate thread helps avoid hitching
         // from calculating agents' actions
-        final int BUFFER_SIZE = 20;
+        final int BUFFER_SIZE = 5;
         final int[] frameCounter = {0}; 
         Queue<String> frameBuffer = new LinkedList<>();
         ScheduledExecutorService drawScheduler = Executors.newSingleThreadScheduledExecutor();
         drawScheduler.scheduleWithFixedDelay(() -> {
-            if (!frameBuffer.isEmpty()) {
-                System.out.println(frameBuffer.poll());
-
+            if (!frameBuffer.isEmpty() && running) {
+                System.out.print("\033[H"); // Move cursor to top left
+                System.out.flush();
+                String frame;
+                synchronized(frameBuffer) {
+                    frame = frameBuffer.poll();
+                }
+                System.out.printf("%s\n", frame);
+                
                 App.logger.debug(String.format("Buffer size: %d", frameBuffer.size()));
-                App.logger.info(String.format("Frame %d", ++frameCounter[0]));
+                App.logger.info(String.format("Frame %d\n", ++frameCounter[0]));
             }
         }, 100, ms, TimeUnit.MILLISECONDS);
 
-
-        while (true) {
+        while (running) {
             // We only want to lock the frame buffer when necessary.
             // Including agents' actions in this synchronized block
             // could cause a deadlock (Thread waiting for another
-            // thread to release a piece of memory).
+            // thread to release a piece of memory)
             synchronized(frameBuffer) {
                 if (frameBuffer.size() < BUFFER_SIZE) {
                     frameBuffer.add(toString());
