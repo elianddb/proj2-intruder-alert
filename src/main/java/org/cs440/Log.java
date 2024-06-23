@@ -3,9 +3,9 @@ package org.cs440;
 public class Log {
     public enum Level {
         INFO(0), 
-        DEBUG(1),
         WARNING(1), 
-        ERROR(1);
+        DEBUG(2),
+        ERROR(2);
 
         public final int PRIORITY;
 
