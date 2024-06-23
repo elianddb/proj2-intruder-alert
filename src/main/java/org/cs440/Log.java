@@ -32,8 +32,12 @@ public class Log {
     }
 
     private void log(Level level, String message) {
-        if (level.PRIORITY <= this.level.PRIORITY) {
-            System.out.printf("%s.%s:\t%s\n", LOGGER, level, message);
+        synchronized(this) {
+            if (level.PRIORITY <= this.level.PRIORITY) {
+                System.out.print("\033[2K"); // Clear line in case of previous log
+                System.out.printf("%s.%s:\t%s\n", LOGGER, level, message);
+                System.out.flush();
+            }
         }
     }
 
