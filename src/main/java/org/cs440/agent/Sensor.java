@@ -12,7 +12,7 @@ public class Sensor {
     public Sensor(Agent user, Agent target, double sensitivity) {
         this.user = user;
         this.target = target;
-        if (sensitivity < 0) {
+        if (sensitivity <= 0) {
             App.logger.warn(
                 String.format("Sensitivity must be positive, setting to default (%f)", DEFAULT_SENSITIVITY)
             );
