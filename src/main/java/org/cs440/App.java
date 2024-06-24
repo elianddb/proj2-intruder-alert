@@ -13,11 +13,10 @@ public class App {
         logger.setLevel(Log.Level.DEBUG);
         
         Ship ship = new Ship(40, 40);
-        Simulation simulation = new Simulation(ship);
-
         StationaryMouse mouse = new StationaryMouse('M');
         Bot bot = new Bot('A', mouse);
-
+        
+        Simulation simulation = new Simulation(ship);
         simulation.addAgent(bot);
         simulation.addAgent(mouse);
         simulation.run(100); // Exclude delay to run without drawing frames
