@@ -59,7 +59,7 @@ public class Simulation {
         Queue<String> frameBuffer = new LinkedList<>();
         ScheduledExecutorService drawScheduler = Executors.newSingleThreadScheduledExecutor();
         drawScheduler.scheduleWithFixedDelay(() -> {
-            if (!frameBuffer.isEmpty() && running) {
+            if (!frameBuffer.isEmpty()) {
                 System.out.print("\033[H"); // Move cursor to top left
                 System.out.flush();
                 String frame;
