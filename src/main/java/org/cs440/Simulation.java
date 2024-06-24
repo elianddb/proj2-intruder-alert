@@ -78,13 +78,12 @@ public class Simulation {
             // thread to release a piece of memory)
             synchronized (frameBuffer) {
                 if (frameBuffer.size() < BUFFER_SIZE) {
-                    frameBuffer.add(toString());
+                    frameBuffer.add(toString()); // Queue new frame state
                 } else {
                     continue;
                 }
             }
 
-            // Queue new frame state
             int closed = 0;
             for (Action action : actions.values()) {
                 if (action.closed()) {
@@ -106,7 +105,6 @@ public class Simulation {
         running = true;
 
         while (running) {
-            // Queue new frame state
             int closed = 0;
             for (Action action : actions.values()) {
                 if (action.closed()) {
