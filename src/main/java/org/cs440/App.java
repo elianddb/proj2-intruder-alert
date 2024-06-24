@@ -4,12 +4,11 @@ import java.io.IOException;
 
 import org.cs440.Log.Level;
 import org.cs440.agent.Bot;
-import org.cs440.agent.StationaryMouse;
 import org.cs440.agent.StochasticMouse;
 import org.cs440.ship.Ship;
 
 public class App {
-    public static final Log logger = new Log("Logger");
+    public static final Log logger = new Log("App");
 
     public static void main(String[] args) throws IOException, InterruptedException {
         logger.setLevel(Level.DEBUG);
