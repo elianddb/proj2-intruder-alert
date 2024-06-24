@@ -53,7 +53,7 @@ public class Simulation {
         // Drawing frames on a separate thread helps avoid hitching
         // from calculating agents' actions
         final int BUFFER_SIZE = 5;
-        final int[] frameCounter = { 0 };
+        final int[] frameCounter = {0};
         Queue<String> frameBuffer = new LinkedList<>();
         ScheduledExecutorService drawScheduler = Executors.newSingleThreadScheduledExecutor();
         drawScheduler.scheduleWithFixedDelay(() -> {
@@ -85,8 +85,41 @@ public class Simulation {
             }
 
             // Queue new frame state
+            int closed = 0;
             for (Action action : actions.values()) {
+                if (action.closed()) {
+                    closed++;
+                    continue;
+                }
+
                 action.perform();
+            }
+            
+
+            if (closed == actions.size()) {
+                stop();
+            }
+        }
+    }
+
+    public void run() { // Runs the above but without draw
+        running = true;
+
+        while (running) {
+            // Queue new frame state
+            int closed = 0;
+            for (Action action : actions.values()) {
+                if (action.closed()) {
+                    closed++;
+                    continue;
+                }
+                
+                action.perform();
+            }
+            
+
+            if (closed == actions.size()) {
+                stop();
             }
         }
     }
