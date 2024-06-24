@@ -28,7 +28,7 @@ public class Log {
         if (level.PRIORITY <= this.level.PRIORITY) {
             System.out.print("\033[0J"); // Clear lines from the cursor to the end of the screen
             String header = String.format("%s.%s.%s():", LOGGER, level, caller);
-            System.out.printf("%-30s   %s\n", header, message);
+            System.out.printf("%-40s%s\n", header, message);
             System.out.flush();
         }
     }
