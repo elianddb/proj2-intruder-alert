@@ -7,8 +7,17 @@ import org.cs440.ship.Ship;
 import org.cs440.ship.Tile;
 
 public class Bot extends Agent implements Movement, Action {
-    public Bot(char identifier) {
+    protected Agent target;
+    protected Sensor sensor;
+
+    public Bot(char identifier, Agent target, double sensorSensitivity) {
         super(identifier);
+        this.target = target;
+        this.sensor = new Sensor(this, target, sensorSensitivity);
+    }
+
+    public Bot(char identifier, Agent target) {
+        this(identifier, target, 0.1);
     }
 
     @Override
@@ -39,7 +48,15 @@ public class Bot extends Agent implements Movement, Action {
 
     @Override
     public void perform() {
-        // TODO implement Bot action
-        App.logger.debug("Bot action executed!");
+        // TODO implement Bot1 action
+        if (sensor.sense()) {
+            App.logger.debug("Bot " + identifier + " sensed target " + target.identifier);
+        }
+    }
+
+    @Override
+    public boolean closed() {
+        // TODO implement Bot1 completion condition
+        return false;
     }
 }
