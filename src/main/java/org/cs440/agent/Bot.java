@@ -41,11 +41,6 @@ public class Bot extends Agent implements Movement, Action {
     }
 
     @Override
-    public String toString() {
-        return "Bot [identifier=" + identifier + ", location=" + location + "]";
-    }
-
-    @Override
     public void perform() {
         // TODO implement Bot1 action
         if (sensor.sense()) {
@@ -57,5 +52,10 @@ public class Bot extends Agent implements Movement, Action {
     public boolean closed() {
         // TODO implement Bot1 completion condition
         return false;
+    }
+
+    @Override
+    public String toString() {
+        return "Bot [identifier=" + identifier + ", location=" + location + "]";
     }
 }
