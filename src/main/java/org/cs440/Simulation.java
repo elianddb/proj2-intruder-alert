@@ -54,7 +54,7 @@ public class Simulation {
         // Drawing frames on a separate thread helps avoid hitching
         // from calculating agents' actions
         final int BUFFER_SIZE = 5;
-        final int[] frameCounter = {0};
+        final int[] count = {0};
         Queue<String> frameBuffer = new LinkedList<>();
         ScheduledExecutorService drawScheduler = Executors.newSingleThreadScheduledExecutor();
         drawScheduler.scheduleWithFixedDelay(() -> {
@@ -66,8 +66,8 @@ public class Simulation {
                 }
                 System.out.printf("%s\n", frame);
                 
-                App.logger.debug(String.format("Buffer size: %d", frameBuffer.size()));
-                App.logger.info(String.format("Frame %d", ++frameCounter[0]));
+                App.logger.debug(String.format("FRAME_BUFFER_SIZE = %d", frameBuffer.size()));
+                App.logger.info(String.format("Frame %d", ++count[0]));
                 System.out.flush();
             }
         }, 100, ms, TimeUnit.MILLISECONDS);
