@@ -15,12 +15,12 @@ public class App {
         Ship ship = new Ship(40, 40);
         Simulation simulation = new Simulation(ship);
 
-        Bot bot = new Bot('A');
         StationaryMouse mouse = new StationaryMouse('M');
+        Bot bot = new Bot('A', mouse);
 
         simulation.addAgent(bot);
         simulation.addAgent(mouse);
-        simulation.run(100);
+        simulation.run(100); // Exclude delay to run without drawing frames
 
         System.out.println("Press Enter to exit...");
         System.in.read();
