@@ -46,6 +46,10 @@ public abstract class Agent {
     }
     
     public static interface Action {
+        // Coextensive = action stops when every other action stops
+        //     closed() should simply return this value for the above
+        public static final boolean COEXTENSIVE = true;
+
         public void perform();
         public boolean closed(); // No reason to continue performing actions
     }
