@@ -27,7 +27,7 @@ public class Sensor {
 
     public boolean sense() {
         // The nearer the bot is to the target, the more likely it is to sense it (beep)
-        // The bot's d-distnace from the target is the Manhattan distance between the two
+        // The bot's d-distance from the target is the Manhattan distance between the two
         // The probability of receiving a beep is e^((-alpha)*(d-1))
         //     for some constant alpha > 0, alpha = sensitivity
         // If the bot is immediately adjacent to the target, the probability of receiving a beep is 1
