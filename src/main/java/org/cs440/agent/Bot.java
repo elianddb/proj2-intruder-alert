@@ -28,15 +28,15 @@ public class Bot extends Agent implements Movement, Action {
             return;
         }
 
-        Tile target = ship.getTile(x, y);
-        if (!target.is(Ship.OPEN)) {
+        Tile destination = ship.getTile(x, y);
+        if (!destination.is(Ship.OPEN)) {
             return;
         }
 
         // You cannot change the state of an Status.OCCUPIED 
         // Tile without the original Location object
         ship.setTile(location, Ship.OPEN);
-        location = target.location();
+        location = destination.location();
 
         ship.setTile(location, Ship.OCCUPIED);
     }
