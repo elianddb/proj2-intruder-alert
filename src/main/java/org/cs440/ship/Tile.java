@@ -1,6 +1,52 @@
 package org.cs440.ship;
 
 public class Tile {
+    protected Type type;
+    protected Location location;
+
+    public Tile(Type type, Location location) {
+        this.type = type;
+        this.location = location;
+    }
+
+    public Tile(Type type, int x, int y) {
+        this(type, new Location(x, y));
+    }
+
+    public Tile(char identifier, Status status, int x, int y) {
+        this(new Type(identifier, status), new Location(x, y));
+    }
+
+    public Location location() {
+        // Prevents agents from modifying each others OCCUPIED tiles
+        if (is(Status.OCCUPIED)) {
+            throw new IllegalStateException("Cannot access location of occupied tile");
+        }
+
+        return location;
+    }
+
+    public char identifier() {
+        return type.identifier;
+    }
+
+    public boolean is(Status status) {
+        return type.status == status;
+    }
+
+    public boolean is(Type type) {
+        return this.type == type;
+    }
+    
+    public void set(Type type) {
+        this.type = type;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%c(%d, %d): %s", type.identifier, location.x, location.y, type.status);
+    }
+
     public enum Status {
         OPEN,
         BLOCKED,
@@ -70,51 +116,5 @@ public class Tile {
         public String toString() {
             return String.format("(%d, %d)", x, y);
         }
-    }
-    
-    protected Type type;
-    protected Location location;
-
-    public Tile(Type type, Location location) {
-        this.type = type;
-        this.location = location;
-    }
-
-    public Tile(Type type, int x, int y) {
-        this(type, new Location(x, y));
-    }
-
-    public Tile(char identifier, Status status, int x, int y) {
-        this(new Type(identifier, status), new Location(x, y));
-    }
-
-    public Location location() {
-        // Prevents agents from modifying each others OCCUPIED tiles
-        if (is(Status.OCCUPIED)) {
-            throw new IllegalStateException("Cannot access location of occupied tile");
-        }
-
-        return location;
-    }
-
-    public char identifier() {
-        return type.identifier;
-    }
-
-    public boolean is(Status status) {
-        return type.status == status;
-    }
-
-    public boolean is(Type type) {
-        return this.type == type;
-    }
-    
-    public void set(Type type) {
-        this.type = type;
-    }
-
-    @Override
-    public String toString() {
-        return String.format("%c(%d, %d): %s", type.identifier, location.x, location.y, type.status);
     }
 }

@@ -3,11 +3,11 @@ package org.cs440.agent;
 import org.cs440.App;
 
 public class Sensor {
+    public static double DEFAULT_SENSITIVITY = 0.1;
+    
     protected Agent user;
     protected Agent target;
     protected double sensitivity; // Inversely proportional
-
-    public static double DEFAULT_SENSITIVITY = 0.1;
 
     public Sensor(Agent user, Agent target, double sensitivity) {
         this.user = user;

@@ -1,19 +1,6 @@
 package org.cs440;
 
 public class Log {
-    public enum Level {
-        INFO(0), 
-        WARNING(1), 
-        DEBUG(2),
-        ERROR(2);
-
-        public final int PRIORITY;
-
-        Level(int priority) {
-            PRIORITY = priority;
-        }
-    }
-
     public final String LOGGER;
     private Level level;
 
@@ -55,5 +42,18 @@ public class Log {
 
     public void error(String message) {
         log(Level.ERROR, message);
+    }
+
+    public enum Level {
+        INFO(0), 
+        WARNING(1), 
+        DEBUG(2),
+        ERROR(2);
+
+        public final int PRIORITY;
+
+        Level(int priority) {
+            PRIORITY = priority;
+        }
     }
 }

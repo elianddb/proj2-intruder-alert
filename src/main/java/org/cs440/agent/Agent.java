@@ -27,6 +27,8 @@ public abstract class Agent {
     }
 
     public interface Movement {
+        public void move(Direction direction);
+
         public static enum Direction {
             UP(0, -1),
             DOWN(0, 1),
@@ -41,8 +43,6 @@ public abstract class Agent {
                 this.dy = dy;
             }
         }
-    
-        public void move(Direction direction);
     }
     
     public static interface Action {
