@@ -21,10 +21,6 @@ public class Sensor {
         this.sensitivity = sensitivity;
     }
 
-    public Sensor(Agent user, Agent target, int sensitivity) {
-        this(user, target, (double) sensitivity);
-    }
-
     public Sensor(Agent user, Agent target) {
         this(user, target, DEFAULT_SENSITIVITY);
     }
