@@ -85,18 +85,18 @@ public class Simulation {
                 }
             }
 
-            int closed = 0;
+            int closedCount = 0;
             for (Action action : actions.values()) {
-                if (action.closed()) {
-                    closed++;
-                    continue;
-                }
-
+                // Perform an agent's action first to account for coexistence
                 action.perform();
+
+                if (action.closed()) {
+                    ++closedCount;
+                }
             }
             
 
-            if (closed == actions.size()) {
+            if (closedCount == actions.size()) {
                 stop();
             }
         }
@@ -106,18 +106,17 @@ public class Simulation {
         running = true;
 
         while (running) {
-            int closed = 0;
+            int closedCount = 0;
             for (Action action : actions.values()) {
-                if (action.closed()) {
-                    closed++;
-                    continue;
-                }
-                
                 action.perform();
+
+                if (action.closed()) {
+                    ++closedCount;
+                }
             }
             
 
-            if (closed == actions.size()) {
+            if (closedCount == actions.size()) {
                 stop();
             }
         }
