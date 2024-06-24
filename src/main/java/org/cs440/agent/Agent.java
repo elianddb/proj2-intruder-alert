@@ -51,6 +51,6 @@ public abstract class Agent {
         public static final boolean COEXTENSIVE = true;
 
         public void perform();
-        public boolean closed(); // No reason to continue performing actions
+        public boolean closed(); // Stops perform() when true
     }
 }
