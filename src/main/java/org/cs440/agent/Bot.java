@@ -5,6 +5,7 @@ import org.cs440.agent.Agent.Action;
 import org.cs440.agent.Agent.Movement;
 import org.cs440.ship.Ship;
 import org.cs440.ship.Tile;
+import org.cs440.ship.Tile.Status;
 
 public class Bot extends Agent implements Movement, Action {
     protected Sensor sensor;
@@ -27,7 +28,7 @@ public class Bot extends Agent implements Movement, Action {
         }
 
         Tile destination = ship.getTile(x, y);
-        if (!destination.is(Ship.OPEN)) {
+        if (!destination.is(Status.OPEN)) {
             return;
         }
 
