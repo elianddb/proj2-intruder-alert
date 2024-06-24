@@ -18,7 +18,7 @@ public class Log {
         this.level = level;
     }
 
-    private void log(Level level, String message) {
+    private synchronized void log(Level level, String message) {
         if (level.PRIORITY <= this.level.PRIORITY) {
             System.out.print("\033[0J"); // Clear lines from the cursor to the end of the screen
             System.out.printf("%s.%s:\t%s\n", LOGGER, level, message);
