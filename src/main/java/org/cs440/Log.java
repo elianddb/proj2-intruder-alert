@@ -20,9 +20,8 @@ public class Log {
 
     private void log(Level level, String message) {
         if (level.PRIORITY <= this.level.PRIORITY) {
-            System.out.print("\033[2K\r");
+            System.out.print("\033[0J"); // Clear lines from the cursor to the end of the screen
             System.out.printf("%s.%s:\t%s\n", LOGGER, level, message);
-            System.out.print("\033[J");
             System.out.flush();
         }
     }
