@@ -7,12 +7,16 @@ public class Sensor {
     protected Agent target;
     protected double sensitivity; // Inversely proportional
 
+    public static double DEFAULT_SENSITIVITY = 0.1;
+
     public Sensor(Agent user, Agent target, double sensitivity) {
         this.user = user;
         this.target = target;
         if (sensitivity < 0) {
-            App.logger.warn("Sensitivity must be positive, setting to default value");
-            sensitivity = 0.1;
+            App.logger.warn(
+                String.format("Sensitivity must be positive, setting to default (%f)", DEFAULT_SENSITIVITY)
+            );
+            sensitivity = DEFAULT_SENSITIVITY;
         }
         this.sensitivity = sensitivity;
     }
@@ -22,7 +26,7 @@ public class Sensor {
     }
 
     public Sensor(Agent user, Agent target) {
-        this(user, target, 0.1);
+        this(user, target, DEFAULT_SENSITIVITY);
     }
 
     public boolean sense() {
