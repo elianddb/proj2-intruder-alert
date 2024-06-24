@@ -14,14 +14,21 @@ public class Log {
         this.level = Level.INFO;
     }
 
+    public boolean is(Level level) {
+        return level == this.level;
+    }
+
     public void setLevel(Level level) {
         this.level = level;
     }
 
     private synchronized void log(Level level, String message) {
+        StackTraceElement[] stacktrace = Thread.currentThread().getStackTrace();
+        String caller = stacktrace[3].getMethodName();
         if (level.PRIORITY <= this.level.PRIORITY) {
             System.out.print("\033[0J"); // Clear lines from the cursor to the end of the screen
-            System.out.printf("%s.%s:\t%s\n", LOGGER, level, message);
+            String header = String.format("%s.%s.%s():", LOGGER, level, caller);
+            System.out.printf("%-30s   %s\n", header, message);
             System.out.flush();
         }
     }
