@@ -19,12 +19,11 @@ public class Log {
     }
 
     private void log(Level level, String message) {
-        synchronized(this) {
-            if (level.PRIORITY <= this.level.PRIORITY) {
-                System.out.print("\033[2K"); // Clear cursor line
-                System.out.printf("%s.%s:\t%s\n", LOGGER, level, message);
-                System.out.flush();
-            }
+        if (level.PRIORITY <= this.level.PRIORITY) {
+            System.out.print("\033[2K\r");
+            System.out.printf("%s.%s:\t%s\n", LOGGER, level, message);
+            System.out.print("\033[J");
+            System.out.flush();
         }
     }
 

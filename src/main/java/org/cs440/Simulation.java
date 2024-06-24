@@ -66,9 +66,8 @@ public class Simulation {
                 }
                 System.out.printf("%s\n", frame);
                 
-                System.out.print("\033[0J");
                 App.logger.debug(String.format("Buffer size: %d", frameBuffer.size()));
-                App.logger.info(String.format("Frame %d\n", ++frameCounter[0]));
+                App.logger.info(String.format("Frame %d", ++frameCounter[0]));
                 System.out.flush();
             }
         }, 100, ms, TimeUnit.MILLISECONDS);
