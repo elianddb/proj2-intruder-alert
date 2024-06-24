@@ -138,6 +138,7 @@ public class Simulation {
                 sb.append(x < ship.width() - 1 ? " " : "");
             }
             sb.append(y < ship.height() - 1 ? "\n" : "");
+            sb.append("\033[K"); // Clear end of line
         }
 
         return sb.toString();
