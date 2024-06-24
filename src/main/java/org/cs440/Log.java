@@ -21,7 +21,7 @@ public class Log {
     private void log(Level level, String message) {
         synchronized(this) {
             if (level.PRIORITY <= this.level.PRIORITY) {
-                System.out.print("\033[0J"); // Clear all lines underneath the current line
+                System.out.print("\033[2K");
                 System.out.printf("%s.%s:\t%s\n", LOGGER, level, message);
                 System.out.flush();
             }
