@@ -50,6 +50,7 @@ public class Simulation {
     public void run(int ms) {
         running = true;
         System.out.print("\033[2J"); // Clear command line prompt
+        System.out.flush();
         // Drawing frames on a separate thread helps avoid hitching
         // from calculating agents' actions
         final int BUFFER_SIZE = 5;
@@ -59,12 +60,12 @@ public class Simulation {
         drawScheduler.scheduleWithFixedDelay(() -> {
             if (!frameBuffer.isEmpty()) {
                 System.out.print("\033[H"); // Move cursor to top left
-                System.out.flush();
                 String frame;
                 synchronized (frameBuffer) {
                     frame = frameBuffer.poll();
                 }
                 System.out.printf("%s\n", frame);
+                System.out.flush();
 
                 App.logger.debug(String.format("Buffer size: %d", frameBuffer.size()));
                 App.logger.info(String.format("Frame %d\n", ++frameCounter[0]));
