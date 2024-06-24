@@ -23,7 +23,7 @@ public class App {
         
         if (logger.is(Level.DEBUG)) { // Delay to read initial state logs
             logger.debug("Debugging is enabled...");
-            Thread.sleep(3000);
+            Thread.sleep(2000);
         }
 
         simulation.run(100); // Exclude delay to run without drawing frames
