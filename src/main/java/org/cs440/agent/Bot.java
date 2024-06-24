@@ -25,7 +25,7 @@ public class Bot extends Agent implements Movement, Action {
         }
 
         // You cannot change the state of a Tile without
-        // the original Location object.
+        // the original Location object
         ship.setTile(location, Ship.OPEN);
         location = target.location();
 
