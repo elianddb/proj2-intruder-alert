@@ -47,5 +47,6 @@ public abstract class Agent {
     
     public static interface Action {
         public void perform();
+        public boolean closed(); // No reason to continue performing actions
     }
 }
