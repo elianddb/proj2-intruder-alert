@@ -2,18 +2,16 @@ package org.cs440;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.cs440.agent.Agent;
 import org.cs440.agent.Agent.Action;
 import org.cs440.ship.Ship;
 import org.cs440.ship.Tile;
-
-import java.util.Queue;
-import java.util.LinkedList;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
 
 public class Simulation {
     private Ship ship;
@@ -55,7 +53,7 @@ public class Simulation {
         // Drawing frames on a separate thread helps avoid hitching
         // from calculating agents' actions
         final int BUFFER_SIZE = 5;
-        final int[] frameCounter = {0}; 
+        final int[] frameCounter = { 0 };
         Queue<String> frameBuffer = new LinkedList<>();
         ScheduledExecutorService drawScheduler = Executors.newSingleThreadScheduledExecutor();
         drawScheduler.scheduleWithFixedDelay(() -> {
@@ -63,11 +61,11 @@ public class Simulation {
                 System.out.print("\033[H"); // Move cursor to top left
                 System.out.flush();
                 String frame;
-                synchronized(frameBuffer) {
+                synchronized (frameBuffer) {
                     frame = frameBuffer.poll();
                 }
                 System.out.printf("%s\n", frame);
-                
+
                 App.logger.debug(String.format("Buffer size: %d", frameBuffer.size()));
                 App.logger.info(String.format("Frame %d\n", ++frameCounter[0]));
             }
@@ -78,14 +76,14 @@ public class Simulation {
             // Including agents' actions in this synchronized block
             // could cause a deadlock (Thread waiting for another
             // thread to release a piece of memory)
-            synchronized(frameBuffer) {
+            synchronized (frameBuffer) {
                 if (frameBuffer.size() < BUFFER_SIZE) {
                     frameBuffer.add(toString());
                 } else {
                     continue;
                 }
             }
-            
+
             // Queue new frame state
             for (Action action : actions.values()) {
                 action.perform();
