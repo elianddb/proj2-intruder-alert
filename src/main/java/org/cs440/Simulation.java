@@ -102,7 +102,7 @@ public class Simulation {
         }
     }
 
-    public void run() { // Runs the above but without draw
+    public void run() { // Runs the run(ms) above but without draw/delay
         running = true;
 
         while (running) {
