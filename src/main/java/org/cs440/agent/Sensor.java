@@ -6,7 +6,7 @@ public class Sensor {
     public static double DEFAULT_SENSITIVITY = 0.1;
     
     protected Agent user;
-    protected Agent target;
+    private Agent target;
     protected double sensitivity; // Inversely proportional
 
     public Sensor(Agent user, Agent target, double sensitivity) {
