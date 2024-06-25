@@ -21,7 +21,7 @@ public class App {
         simulation.addAgent(bot);
         simulation.addAgent(mouse);
         
-        if (logger.is(Level.DEBUG)) { // Delay to read initial state logs
+        if (logger.is(Level.DEBUG)) { // Delay for human to read initial state logs
             logger.debug("Debugging is enabled...");
             logger.debug("Press Enter to start simulation...");
             System.in.read();

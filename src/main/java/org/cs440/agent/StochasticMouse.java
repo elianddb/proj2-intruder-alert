@@ -9,7 +9,6 @@ import org.cs440.ship.Ship;
 import org.cs440.ship.Tile;
 import org.cs440.ship.Tile.Status;
 
-// TODO Implement Movement & Action interface
 public class StochasticMouse extends Agent implements Movement, Action {
     public StochasticMouse(char identifier) {
         super(identifier);
