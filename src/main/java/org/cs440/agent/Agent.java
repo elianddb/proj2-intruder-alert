@@ -32,6 +32,16 @@ public abstract class Agent {
         ship.setTile(location, Ship.OCCUPIED);
     }
 
+    public interface Target {
+        public void interact(Interaction interaction);
+        public boolean alive();
+
+        public static enum Interaction {
+            KILL,
+            NONE
+        }
+    }
+
     public interface Movement {
         public void move(Direction direction);
 

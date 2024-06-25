@@ -5,11 +5,14 @@ import java.util.ArrayList;
 import org.cs440.App;
 import org.cs440.agent.Agent.Action;
 import org.cs440.agent.Agent.Movement;
+import org.cs440.agent.Agent.Target;
 import org.cs440.ship.Ship;
 import org.cs440.ship.Tile;
 import org.cs440.ship.Tile.Status;
 
-public class StochasticMouse extends Agent implements Movement, Action {
+public class StochasticMouse extends Agent implements Movement, Action, Target {
+    private boolean alive = true;
+
     public StochasticMouse(char identifier) {
         super(identifier);
     }
@@ -38,6 +41,10 @@ public class StochasticMouse extends Agent implements Movement, Action {
 
     @Override
     public void perform() {
+        if (!alive) {
+            return;
+        }
+        
         ArrayList<Direction> availableDirections = new ArrayList<>();
         for (Direction direction : Direction.values()) {
             int x = location.x() + direction.dx;
@@ -58,6 +65,22 @@ public class StochasticMouse extends Agent implements Movement, Action {
     @Override
     public boolean closed() {
         return COEXTENSIVE;
+    }
+
+    @Override
+    public void interact(Interaction interaction) {
+        switch (interaction) {
+            case KILL:
+                alive = false;
+                break;
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public boolean alive() {
+        return alive;
     }
 
     @Override

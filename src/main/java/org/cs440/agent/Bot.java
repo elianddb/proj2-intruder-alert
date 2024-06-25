@@ -9,10 +9,12 @@ import org.cs440.ship.Tile.Status;
 
 public class Bot extends Agent implements Movement, Action {
     protected Sensor sensor;
+    private Target target;
 
     public Bot(char identifier, Agent target, double sensorSensitivity) {
         super(identifier);
         this.sensor = new Sensor(this, target, sensorSensitivity);
+        this.target = (Target) target;
     }
 
     public Bot(char identifier, Agent target) {
