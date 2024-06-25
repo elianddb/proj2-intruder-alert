@@ -18,11 +18,18 @@ public class Simulation {
     private ArrayList<Agent> agents;
     private HashMap<Agent, Action> actions;
     private boolean running = false;
+    private int frameCount = 0;
+    private final int frameBufferSize;
 
-    public Simulation(Ship ship) {
+    public Simulation (Ship ship, int frameBufferSize) {
         this.ship = ship;
         this.agents = new ArrayList<>();
         this.actions = new HashMap<>();
+        this.frameBufferSize = frameBufferSize;
+    }
+
+    public Simulation(Ship ship) {
+        this(ship, 10);
     }
 
     public void addAgent(Agent agent) {
@@ -53,8 +60,6 @@ public class Simulation {
         System.out.flush();
         // Drawing frames on a separate thread helps avoid hitching
         // from calculating agents' actions
-        final int BUFFER_SIZE = 5;
-        final int[] count = {0};
         Queue<String> frameBuffer = new LinkedList<>();
         ScheduledExecutorService drawScheduler = Executors.newSingleThreadScheduledExecutor();
         drawScheduler.scheduleWithFixedDelay(() -> {
@@ -67,8 +72,8 @@ public class Simulation {
                 System.out.printf("%s\n", frame);
                 System.out.flush();
                 
-                App.logger.debug(String.format("FRAME_BUFFER_SIZE = %d", frameBuffer.size()));
-                App.logger.info(String.format("Frame %d", ++count[0]));
+                App.logger.debug(String.format("frameBufferSize = %d", frameBuffer.size()));
+                App.logger.info(String.format("Frame %d", ++frameCount));
             }
         }, 100, ms, TimeUnit.MILLISECONDS); // Initial delay to allow frame buffer to fill
 
@@ -78,7 +83,7 @@ public class Simulation {
             // could cause a deadlock (Thread waiting for another
             // thread to release a piece of memory)
             synchronized (frameBuffer) {
-                if (frameBuffer.size() < BUFFER_SIZE) {
+                if (frameBuffer.size() < frameBufferSize) {
                     frameBuffer.add(toString()); // Queue new frame state
                 } else {
                     continue;
