@@ -1,5 +1,7 @@
 package org.cs440.agent;
 
+import java.util.ArrayList;
+
 import org.cs440.App;
 import org.cs440.agent.Agent.Action;
 import org.cs440.agent.Agent.Movement;
@@ -37,8 +39,19 @@ public class StochasticMouse extends Agent implements Movement, Action {
 
     @Override
     public void perform() {
-        int index = (int) (Math.random() * 4);
-        Direction direction = Direction.values()[index];
+        ArrayList<Direction> availableDirections = new ArrayList<>();
+        for (Direction direction : Direction.values()) {
+            int x = location.x() + direction.dx;
+            int y = location.y() + direction.dy;
+            if (!ship.withinBounds(x, y) || !ship.getTile(x, y).is(Status.OPEN)) {
+                continue;
+            }
+
+            availableDirections.add(direction);
+        }
+        availableDirections.add(Direction.NONE);
+        int randomIndex = (int) (Math.random() * availableDirections.size());
+        Direction direction = availableDirections.get(randomIndex);
         App.logger.debug("StochasticMouse " + identifier + " moving in direction " + direction);
         move(direction);
     }
