@@ -1,7 +1,9 @@
 package org.cs440.agent;
 
 import org.cs440.ship.Ship;
+import org.cs440.ship.Tile;
 import org.cs440.ship.Tile.Location;
+import org.cs440.ship.Tile.Status;
 import org.cs440.ship.Tile.Type;
 
 public abstract class Agent {
@@ -24,8 +26,9 @@ public abstract class Agent {
 
     public void link(Ship ship) {
         this.ship = ship;
-        this.location = ship.requestOpen();
-        this.underneath = ship.getTile(location).type();
+        Tile tile = ship.requestRandomTile(Status.OPEN);
+        this.location = tile.location();
+        this.underneath = tile.type();
         ship.setTile(location, Ship.OCCUPIED);
     }
 

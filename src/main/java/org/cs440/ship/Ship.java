@@ -6,6 +6,7 @@ import java.util.HashSet;
 
 import org.cs440.ship.Tile.Type;
 import org.cs440.ship.Tile.Location;
+import org.cs440.ship.Tile.Status;
 
 public class Ship {
     public static final Type BLOCK = new Tile.Type('+', Tile.Status.BLOCKED);
@@ -15,7 +16,7 @@ public class Ship {
 
     protected Tile[][] tiles;
     protected HashSet<Tile> deadEnds;
-    protected HashMap<Type, HashSet<Tile>> tileSets;
+    protected HashMap<Status, HashSet<Tile>> tileSets;
 
     /**
      * Create a new Ship with the given width and height. All tiles are initially blocked.
@@ -29,15 +30,15 @@ public class Ship {
         // Setup tile sets for the above common blocks
         // Make sure to do first before using tile modification methods
         tileSets = new HashMap<>();
-        tileSets.put(OPEN, new HashSet<Tile>());
-        tileSets.put(BLOCK, new HashSet<Tile>());
-        tileSets.put(OCCUPIED, new HashSet<Tile>());
+        tileSets.put(Status.OPEN, new HashSet<Tile>());
+        tileSets.put(Status.BLOCKED, new HashSet<Tile>());
+        tileSets.put(Status.OCCUPIED, new HashSet<Tile>());
 
         // Fill the initial ship with blocked tiles
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 tiles[y][x] = new Tile(BLOCK, x, y);
-                tileSets.get(BLOCK).add(tiles[y][x]);
+                tileSets.get(Status.BLOCKED).add(tiles[y][x]);
             }
         }
 
@@ -50,9 +51,9 @@ public class Ship {
         // Gather all potential paths (BLOCKs) around the first OPEN tile
         // Essentially satisfying that all BLOCKs are next to *one* OPEN tile 
         HashSet<Tile> potentialPaths = new HashSet<>();
-        for (Tile tile : tileSets.get(OPEN)) {
+        for (Tile tile : tileSets.get(Status.OPEN)) {
             for (Location location : tile.location.cardinalNeighbors()) {
-                if (withinBounds(location) && getTile(location).is(BLOCK)) {
+                if (withinBounds(location) && getTile(location).is(Status.BLOCKED)) {
                     potentialPaths.add(getTile(location));
                 }
             }
@@ -78,7 +79,7 @@ public class Ship {
                 }
                 
                 Tile neighbor = getTile(location);
-                if (neighbor.is(OPEN)) { // Keeps track of deadEnds
+                if (neighbor.is(Status.OPEN)) { // Keeps track of deadEnds
                     ++openNeighbors;
                     // The OPEN neighbor would have two OPEN neighbors implcitly now
                     // since the path above is now OPEN
@@ -115,7 +116,7 @@ public class Ship {
             Tile deadEnd = deadEndsItems.get(i);
             ArrayList<Location> blockNeighbors = new ArrayList<>();
             for (Location cardinalNeighbor : deadEnd.location.cardinalNeighbors()) { // Filter out OPEN neighbors
-                if (withinBounds(cardinalNeighbor) && getTile(cardinalNeighbor).is(BLOCK)) {
+                if (withinBounds(cardinalNeighbor) && getTile(cardinalNeighbor).is(Status.BLOCKED)) {
                     blockNeighbors.add(cardinalNeighbor);
                 }
             }
@@ -123,7 +124,7 @@ public class Ship {
             openTile(neighbor);
 
             for (Location cardinalNeighbor : neighbor.cardinalNeighbors()) { // Remove new obselete dead ends
-                if (withinBounds(cardinalNeighbor) && getTile(cardinalNeighbor).is(OPEN)) {
+                if (withinBounds(cardinalNeighbor) && getTile(cardinalNeighbor).is(Status.OPEN)) {
                     deadEnds.remove(getTile(cardinalNeighbor));
                     deadEndsItems.remove(getTile(cardinalNeighbor));
                 }
@@ -160,14 +161,14 @@ public class Ship {
 
     public void enforceOwnership(int x, int y) {
         Tile tile = getTile(x, y);
-        if (tile.is(OCCUPIED)) {
+        if (tile.is(Status.OCCUPIED)) {
             throw new IllegalArgumentException(String.format("Tile already occupied %s", tile));
         }
     }
 
     public void enforceOwnership(Location location) {
         Tile tile = getTile(location);
-        if (!tile.is(OCCUPIED)) {
+        if (!tile.is(Status.OCCUPIED)) {
             return;
         }
 
@@ -176,9 +177,9 @@ public class Ship {
         }
     }
 
-    public Location requestOpen() {
-        ArrayList<Tile> openTiles = new ArrayList<>(tileSets.get(OPEN));
-        return openTiles.get((int) (Math.random() * openTiles.size())).location;
+    public Tile requestRandomTile(Status status) {
+        ArrayList<Tile> openTiles = new ArrayList<>(tileSets.get(status));
+        return openTiles.get((int) (Math.random() * openTiles.size()));
     }
 
     public Tile getTile(int x, int y) {
@@ -192,13 +193,16 @@ public class Ship {
 
     public void setTile(int x, int y, Tile.Type type) {
         enforceBounds(x, y);
+
         if (tiles[y][x].is(type)) { // No need to update
             return;
         }
+
         enforceOwnership(x, y);
+
         // Update related tile set
-        tileSets.get(tiles[y][x].type).remove(tiles[y][x]);
-        tileSets.get(type).add(tiles[y][x]);
+        tileSets.get(tiles[y][x].type.status).remove(tiles[y][x]);
+        tileSets.get(type.status).add(tiles[y][x]);
 
         tiles[y][x].set(type);
     }
@@ -212,8 +216,8 @@ public class Ship {
 
         enforceOwnership(location);
         // Update related tile set
-        tileSets.get(tile.type).remove(tile);
-        tileSets.get(type).add(tile);
+        tileSets.get(tile.type.status).remove(tile);
+        tileSets.get(type.status).add(tile);
 
         tile.set(type);
     }
@@ -235,15 +239,15 @@ public class Ship {
     }
 
     public int numOfBlocks() {
-        return tileSets.get(BLOCK).size();
+        return tileSets.get(Status.BLOCKED).size();
     }
 
     public int numOfOpen() {
-        return tileSets.get(OPEN).size();
+        return tileSets.get(Status.OPEN).size();
     }
 
     public int numOfOccupied() {
-        return tileSets.get(OCCUPIED).size();
+        return tileSets.get(Status.OCCUPIED).size();
     }
 
     public int numOfDeadEnds() {
