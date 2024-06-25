@@ -70,7 +70,7 @@ public class Simulation {
                 App.logger.info(String.format("Frame %d", ++count[0]));
                 System.out.flush();
             }
-        }, 100, ms, TimeUnit.MILLISECONDS);
+        }, 100, ms, TimeUnit.MILLISECONDS); // Initial delay to allow frame buffer to fill
 
         while (running) {
             // We only want to lock the frame buffer when necessary.
