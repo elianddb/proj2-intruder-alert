@@ -65,10 +65,10 @@ public class Simulation {
                     frame = frameBuffer.poll();
                 }
                 System.out.printf("%s\n", frame);
+                System.out.flush();
                 
                 App.logger.debug(String.format("FRAME_BUFFER_SIZE = %d", frameBuffer.size()));
                 App.logger.info(String.format("Frame %d", ++count[0]));
-                System.out.flush();
             }
         }, 100, ms, TimeUnit.MILLISECONDS); // Initial delay to allow frame buffer to fill
 
@@ -138,7 +138,7 @@ public class Simulation {
                 sb.append(x < ship.width() - 1 ? " " : "");
             }
             sb.append(y < ship.height() - 1 ? "\n" : "");
-            sb.append("\033[K"); // Clear end of line
+            // sb.append("\033[K"); // Clear end of line
         }
 
         return sb.toString();
