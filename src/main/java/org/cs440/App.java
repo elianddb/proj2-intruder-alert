@@ -10,7 +10,7 @@ import org.cs440.ship.Ship;
 public class App {
     public static final Log logger = new Log("App");
 
-    public static void main(String[] args) throws IOException, InterruptedException {
+    public static void main(String[] args) throws IOException {
         logger.setLevel(Level.DEBUG);
         
         Ship ship = new Ship(40, 40);
@@ -23,7 +23,8 @@ public class App {
         
         if (logger.is(Level.DEBUG)) { // Delay to read initial state logs
             logger.debug("Debugging is enabled...");
-            Thread.sleep(2000);
+            logger.debug("Press Enter to start simulation...");
+            System.in.read();
         }
 
         simulation.run(100); // Exclude delay to run without drawing frames
