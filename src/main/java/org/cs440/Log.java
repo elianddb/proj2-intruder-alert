@@ -28,8 +28,8 @@ public class Log {
         String caller = stacktrace[3].getMethodName();
         if (level.PRIORITY <= this.level.PRIORITY) {
             System.out.print("\033[0J"); // Clear lines from the cursor to the end of the screen
-            String header = String.format("%s.%s.%s.%s():", LOGGER, level, className, caller);
-            System.out.printf("%60s\t%s\n", header, message);
+            String header = String.format("%s.%s::%s.%s():", LOGGER, level, className, caller);
+            System.out.printf("%-60s\t%s\n", header, message);
             System.out.flush();
         }
     }
