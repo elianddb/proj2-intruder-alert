@@ -28,9 +28,10 @@ public class StochasticMouse extends Agent implements Movement, Action {
 
         // You cannot change the state of an Status.OCCUPIED 
         // Tile without the original Location object
-        ship.setTile(location, Ship.OPEN);
+        ship.setTile(location, underneath);
         location = destination.location();
 
+        underneath = ship.getTile(location).type();
         ship.setTile(location, Ship.OCCUPIED);
     }
 

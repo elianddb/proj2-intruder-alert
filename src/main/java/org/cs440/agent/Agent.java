@@ -2,11 +2,13 @@ package org.cs440.agent;
 
 import org.cs440.ship.Ship;
 import org.cs440.ship.Tile.Location;
+import org.cs440.ship.Tile.Type;
 
 public abstract class Agent {
     protected char identifier;
     protected Location location;
     protected Ship ship;
+    protected Type underneath;
 
     public Agent(char identifier) {
         this.identifier = identifier;
@@ -23,6 +25,7 @@ public abstract class Agent {
     public void link(Ship ship) {
         this.ship = ship;
         this.location = ship.requestOpen();
+        this.underneath = ship.getTile(location).type();
         ship.setTile(location, Ship.OCCUPIED);
     }
 

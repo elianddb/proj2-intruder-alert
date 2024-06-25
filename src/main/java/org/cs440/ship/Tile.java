@@ -37,6 +37,10 @@ public class Tile {
     public boolean is(Type type) {
         return this.type == type;
     }
+
+    public Type type() {
+        return type;
+    }
     
     public void set(Type type) {
         this.type = type;
