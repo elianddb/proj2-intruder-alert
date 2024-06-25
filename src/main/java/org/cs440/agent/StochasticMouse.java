@@ -36,22 +36,10 @@ public class StochasticMouse extends Agent implements Movement, Action {
 
     @Override
     public void perform() {
-        int direction = (int) (Math.random() * 4);
+        int index = (int) (Math.random() * 4);
+        Direction direction = Direction.values()[index];
         App.logger.debug("StochasticMouse " + identifier + " moving in direction " + direction);
-        switch (direction) {
-            case 0:
-                move(Direction.UP);
-                break;
-            case 1:
-                move(Direction.DOWN);
-                break;
-            case 2:
-                move(Direction.LEFT);
-                break;
-            case 3:
-                move(Direction.RIGHT);
-                break;
-        }
+        move(direction);
     }
 
     @Override
