@@ -24,6 +24,9 @@ public class Sensor {
     public Sensor(Agent user, Agent target) {
         this(user, target, DEFAULT_SENSITIVITY);
     }
+    public double getSensitivity() {
+        return sensitivity;
+    }
 
     public boolean sense() {
         // The nearer the bot is to the target, the more likely it is to sense it (beep)

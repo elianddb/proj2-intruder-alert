@@ -59,6 +59,17 @@ public abstract class Agent {
                 this.dx = dx;
                 this.dy = dy;
             }
+            public static Direction fromDx(int dx) {
+                if (dx > 0) return RIGHT;
+                else if (dx < 0) return LEFT;
+                else return NONE;
+            }
+        
+            public static Direction fromDy(int dy) {
+                if (dy > 0) return DOWN;
+                else if (dy < 0) return UP;
+                else return NONE;
+            }
         }
     }
     
