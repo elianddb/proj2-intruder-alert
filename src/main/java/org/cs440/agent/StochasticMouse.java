@@ -71,6 +71,7 @@ public class StochasticMouse extends Agent implements Movement, Action, Mortalit
     public boolean kill(int x, int y) {
         if (location.x() == x && location.y() == y) {
             alive = false;
+            identifier = '%';
         }
 
         return !alive;

@@ -13,6 +13,7 @@ public class StationaryMouse extends Agent implements Mortality {
     public boolean kill(int x, int y) {
         if (location.x() == x && location.y() == y) {
             alive = false;
+            identifier = '%';
         }
 
         return !alive;
