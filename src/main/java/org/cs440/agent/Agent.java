@@ -32,14 +32,9 @@ public abstract class Agent {
         ship.setTile(location, Ship.OCCUPIED);
     }
 
-    public interface Target {
-        public void interact(Interaction interaction);
+    public interface Mortality {
+        public boolean kill(int x, int y);
         public boolean alive();
-
-        public static enum Interaction {
-            KILL,
-            NONE
-        }
     }
 
     public interface Movement {
