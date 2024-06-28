@@ -12,7 +12,7 @@ import org.cs440.ship.Tile.Status;
 
 public class StochasticMouse extends Agent implements Movement, Action, Target {
     private boolean alive = true;
-
+    
     public StochasticMouse(char identifier) {
         super(identifier);
     }
@@ -72,6 +72,7 @@ public class StochasticMouse extends Agent implements Movement, Action, Target {
         switch (interaction) {
             case KILL:
                 alive = false;
+                App.logger.debug("StochasticMouse " + identifier + " killed.");
                 break;
             default:
                 break;

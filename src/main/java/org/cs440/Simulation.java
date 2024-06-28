@@ -125,6 +125,7 @@ public class Simulation {
                 stop();
             }
         }
+        App.logger.info("Simulation complete. Bot succeeded with " + " frames.");
     }
 
     @Override

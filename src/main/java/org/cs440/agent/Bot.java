@@ -25,6 +25,8 @@ public class Bot extends Agent implements Movement, Action {
     private final static int GRID_SIZE = 40;
     private Queue<Direction> moveQueue = new LinkedList<>();
     private boolean firstIteration = true;
+    private int moveCount = 0;
+    private int senseCount = 0;
 
     public Bot(char identifier, Agent target, double sensorSensitivity) {
         super(identifier);
@@ -46,6 +48,13 @@ public class Bot extends Agent implements Movement, Action {
         }
 
         Tile destination = ship.getTile(x, y);
+        if(destination.is(Status.OCCUPIED)) {
+            App.logger.error("Bot " + identifier + " encountered target at location " + location);
+            App.logger.error("Bot " + identifier + " killed target " + ((Agent)target).identifier());
+            App.logger.error("Killed target in " + moveCount + " moves and " + senseCount + " senses for a total of " + (moveCount + senseCount) + " actions.");
+            target.interact(Target.Interaction.KILL);
+            return;
+        }
         if (!destination.is(Status.OPEN)) {
             return;
         }
@@ -68,13 +77,14 @@ public class Bot extends Agent implements Movement, Action {
         if (moveQueue.isEmpty()) {
             App.logger.debug("MoveQueue is empty, planning path.");
             boolean sensed = sensor.sense();
+            senseCount++;
             updateProbabilityMap(sensed);
             planPath();
         } else {
             App.logger.debug("Executing move from queue.");
             move(moveQueue.poll());
-        }
-        App.logger.debug("Perform complete, queue size: " + moveQueue.size());  
+            moveCount++;
+        } 
     }
 
     @Override
@@ -85,6 +95,12 @@ public class Bot extends Agent implements Movement, Action {
         Location nextLocation = getMaxProbabilityLocation();
         moveQueue.clear();
         findPath(nextLocation);
+    }
+    public int getMoves() {
+        return moveCount;
+    }
+    public int getSenses() {
+        return senseCount;
     }
     private Location getMaxProbabilityLocation() {
         Location maxLocation = location;  
@@ -145,7 +161,7 @@ public class Bot extends Agent implements Movement, Action {
     }
     
     private boolean isValid(Location loc, Set<Location> visited) {
-        return ship.withinBounds(loc.x(), loc.y()) && !visited.contains(loc) && ship.getTile(loc.x(), loc.y()).is(Tile.Status.OPEN);
+        return ship.withinBounds(loc.x(), loc.y()) && !visited.contains(loc) && (ship.getTile(loc.x(), loc.y()).is(Tile.Status.OPEN)|| ship.getTile(loc.x(), loc.y()).is(Tile.Status.OCCUPIED));
     }
     
     

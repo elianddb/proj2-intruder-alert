@@ -27,6 +27,7 @@ public class Sensor {
     public double getSensitivity() {
         return sensitivity;
     }
+    
 
     public boolean sense() {
         // The nearer the bot is to the target, the more likely it is to sense it (beep)
