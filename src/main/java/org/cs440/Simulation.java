@@ -30,7 +30,7 @@ public class Simulation {
     }
 
     public Simulation(Ship ship) {
-        this(ship, 10);
+        this(ship, 200);
     }
 
     public void addAgent(Agent agent) {
