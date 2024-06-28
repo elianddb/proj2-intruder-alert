@@ -19,6 +19,7 @@ public class Simulation {
     private HashMap<Agent, Action> actions;
     private boolean running = false;
     private int frameCount = 0;
+    private int noOfSteps = 0;
     private final int frameBufferSize;
 
     public Simulation (Ship ship, int frameBufferSize) {
@@ -50,6 +51,10 @@ public class Simulation {
         return null;
     }
 
+    public int stepsTaken() {
+        return noOfSteps;
+    }
+
     public void stop() {
         running = false;
     }
@@ -76,7 +81,7 @@ public class Simulation {
                 App.logger.info(String.format("Frame %d", ++frameCount));
             }
         }, 100, ms, TimeUnit.MILLISECONDS); // Initial delay to allow frame buffer to fill
-
+        
         while (running || !frameBuffer.isEmpty()) {
             // We only want to lock the frame buffer when necessary.
             // Including agents' actions in this synchronized block
@@ -100,11 +105,12 @@ public class Simulation {
                 }
             }
             
-
             App.logger.debug("closedCount = " + closedCount);
             if (closedCount == actions.size()) {
                 stop();
+                break;
             }
+            ++noOfSteps;
         }
 
         drawScheduler.shutdown();
@@ -123,10 +129,11 @@ public class Simulation {
                 }
             }
             
-
             if (closedCount == actions.size()) {
                 stop();
+                break;
             }
+            ++noOfSteps;
         }
     }
 
