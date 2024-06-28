@@ -115,12 +115,14 @@ public class Simulation {
         // Add last frame with updated states
         synchronized (frameBuffer) {
             frameBuffer.add(toString());
-            while (!frameBuffer.isEmpty()); // Wait for last frame to draw
+
         }
         
-        drawScheduler.shutdown();
+        while (!frameBuffer.isEmpty()); // Wait for last frame to draw
 
         --noOfSteps; // Exclude final step
+
+        drawScheduler.shutdown();
     }
 
     public void run() { // Runs the run(ms) above but without draw/delay
