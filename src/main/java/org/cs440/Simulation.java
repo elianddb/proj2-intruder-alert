@@ -77,13 +77,13 @@ public class Simulation {
             }
         }, 100, ms, TimeUnit.MILLISECONDS); // Initial delay to allow frame buffer to fill
 
-        while (running) {
+        while (running || !frameBuffer.isEmpty()) {
             // We only want to lock the frame buffer when necessary.
             // Including agents' actions in this synchronized block
             // could cause a deadlock (Thread waiting for another
             // thread to release a piece of memory)
             synchronized (frameBuffer) {
-                if (frameBuffer.size() < frameBufferSize) {
+                if (running && frameBuffer.size() < frameBufferSize) {
                     frameBuffer.add(toString()); // Queue new frame state
                 } else {
                     continue;
