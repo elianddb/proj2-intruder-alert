@@ -130,6 +130,7 @@ public class Simulation {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
+        sb.append("\033[K"); // Sometimes init line doesn't clear correctly
         for (int y = 0; y < ship.height(); y++) {
             for (int x = 0; x < ship.width(); x++) {
                 Tile tile = ship.getTile(x, y);
