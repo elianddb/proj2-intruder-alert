@@ -65,12 +65,10 @@ public class Bot extends Agent implements Movement, Action {
             initializeProbabilityMap();
             firstIteration = false;
         }
-        App.logger.debug("Starting perform with moveQueue empty: " + moveQueue.isEmpty());
-        boolean sensed = sensor.sense();
-        App.logger.debug("Sensor sensed: " + sensed);
-        updateProbabilityMap(sensed);
         if (moveQueue.isEmpty()) {
             App.logger.debug("MoveQueue is empty, planning path.");
+            boolean sensed = sensor.sense();
+            updateProbabilityMap(sensed);
             planPath();
         } else {
             App.logger.debug("Executing move from queue.");
