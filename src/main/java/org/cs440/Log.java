@@ -1,8 +1,14 @@
 package org.cs440;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 public class Log {
     public final String LOGGER;
     private Level level;
+    private List<String> logMessages = new ArrayList<>();
 
     Log(String logger, Level level) {
         LOGGER = logger;
@@ -29,8 +35,20 @@ public class Log {
         if (level.PRIORITY <= this.level.PRIORITY) {
             System.out.print("\033[0J"); // Clear lines from the cursor to the end of the screen
             String header = String.format("%s.%s::%s.%s():", LOGGER, level, className, caller);
-            System.out.printf("%-60s\t%s\n", header, message);
+            String logMessage = String.format("%-60s\t%s", header, message);
+            System.out.println(logMessage);
             System.out.flush();
+            logMessages.add(logMessage);
+        }
+    }
+
+    public void writeTo(String filename) {
+        try (FileWriter writer = new FileWriter(filename + ".log")) {
+            for (String logMessage : logMessages) {
+                writer.write(logMessage + "\n");
+            }
+        } catch (IOException e) {
+            error("Failed to write log messages to file: " + e.getMessage());
         }
     }
 

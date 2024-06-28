@@ -33,5 +33,8 @@ public class App {
 
         System.out.println("Press Enter to exit...");
         System.in.read();
+        
+        logger.writeTo("App");
+        App.logger.info("Simulation complete. Log messages written to App.log.");
     }
 }
