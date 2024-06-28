@@ -108,12 +108,12 @@ public class Simulation {
             App.logger.debug("closedCount = " + closedCount);
             if (closedCount == actions.size()) {
                 stop();
-                break;
             }
             ++noOfSteps;
         }
 
         drawScheduler.shutdown();
+        --noOfSteps; // Exclude final step
     }
 
     public void run() { // Runs the run(ms) above but without draw/delay
@@ -131,10 +131,11 @@ public class Simulation {
             
             if (closedCount == actions.size()) {
                 stop();
-                break;
             }
             ++noOfSteps;
         }
+
+        --noOfSteps; // Exclude final step
     }
 
     @Override
