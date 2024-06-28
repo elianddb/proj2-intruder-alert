@@ -49,9 +49,9 @@ public class Bot extends Agent implements Movement, Action {
 
         Tile destination = ship.getTile(x, y);
         if(destination.is(Status.OCCUPIED)) {
-            App.logger.error("Bot " + identifier + " encountered target at location " + location);
-            App.logger.error("Bot " + identifier + " killed target " + ((Agent)target).identifier());
-            App.logger.error("Killed target in " + moveCount + " moves and " + senseCount + " senses for a total of " + (moveCount + senseCount) + " actions.");
+            App.logger.debug("Bot " + identifier + " encountered target at location " + location);
+            App.logger.debug("Bot " + identifier + " killed target " + ((Agent)target).identifier());
+            App.logger.debug("Killed target in " + moveCount + " moves and " + senseCount + " senses for a total of " + (moveCount + senseCount) + " actions.");
             target.interact(Target.Interaction.KILL);
             return;
         }
