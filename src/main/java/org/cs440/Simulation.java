@@ -101,10 +101,13 @@ public class Simulation {
             }
             
 
+            App.logger.debug("closedCount = " + closedCount);
             if (closedCount == actions.size()) {
                 stop();
             }
         }
+
+        drawScheduler.shutdown();
     }
 
     public void run() { // Runs the run(ms) above but without draw/delay
