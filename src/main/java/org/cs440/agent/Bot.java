@@ -20,7 +20,7 @@ import org.cs440.ship.Tile.Status;
 
 public class Bot extends Agent implements Movement, Action {
     protected Sensor sensor;
-    private Target target;
+    private Mortality target;
     private double[][] probabilityMap;
     private final static int GRID_SIZE = 40;
     private Queue<Direction> moveQueue = new LinkedList<>();
@@ -31,7 +31,7 @@ public class Bot extends Agent implements Movement, Action {
     public Bot(char identifier, Agent target, double sensorSensitivity) {
         super(identifier);
         this.sensor = new Sensor(this, target, sensorSensitivity);
-        this.target = (Target) target;
+        this.target = (Mortality) target;
         this.probabilityMap = new double[GRID_SIZE][GRID_SIZE];
     }
 
@@ -48,13 +48,6 @@ public class Bot extends Agent implements Movement, Action {
         }
 
         Tile destination = ship.getTile(x, y);
-        if(destination.is(Status.OCCUPIED)) {
-            App.logger.debug("Bot " + identifier + " encountered target at location " + location);
-            App.logger.debug("Bot " + identifier + " killed target " + ((Agent)target).identifier());
-            App.logger.debug("Killed target in " + moveCount + " moves and " + senseCount + " senses for a total of " + (moveCount + senseCount) + " actions.");
-            target.interact(Target.Interaction.KILL);
-            return;
-        }
         if (!destination.is(Status.OPEN)) {
             return;
         }
@@ -70,10 +63,15 @@ public class Bot extends Agent implements Movement, Action {
 
     @Override
     public void perform() {
+        if (closed()) { // Don't want to keep moving if goal is complete
+            return;
+        }
+
         if(firstIteration == true) {
             initializeProbabilityMap();
             firstIteration = false;
         }
+
         if (moveQueue.isEmpty()) {
             App.logger.debug("MoveQueue is empty, planning path.");
             boolean sensed = sensor.sense();
@@ -82,7 +80,16 @@ public class Bot extends Agent implements Movement, Action {
             planPath();
         } else {
             App.logger.debug("Executing move from queue.");
-            move(moveQueue.poll());
+            Direction direction = moveQueue.poll();
+            int x = location.x() + direction.dx;
+            int y = location.y() + direction.dy;
+            move(direction);
+            if (target.kill(x, y)) {
+                App.logger.debug("Bot " + identifier + " encountered target at location " + location);
+                App.logger.debug("Bot " + identifier + " killed target " + ((Agent)target).identifier());
+                App.logger.debug("Killed target in " + moveCount + " moves and " + senseCount + " senses for a total of " + (moveCount + senseCount) + " actions.");
+                return; // Didn't move target was in way
+            }
             moveCount++;
         } 
     }
