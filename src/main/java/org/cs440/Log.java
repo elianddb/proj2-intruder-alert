@@ -29,10 +29,11 @@ public class Log {
     }
 
     private synchronized void log(Level level, String message) {
-        StackTraceElement[] stacktrace = Thread.currentThread().getStackTrace();
-        String className = stacktrace[3].getClassName();
-        String caller = stacktrace[3].getMethodName();
         if (level.PRIORITY <= this.level.PRIORITY) {
+            StackTraceElement[] stacktrace = Thread.currentThread().getStackTrace();
+            String className = stacktrace[3].getClassName();
+            String caller = stacktrace[3].getMethodName();
+            
             System.out.print("\033[0J"); // Clear lines from the cursor to the end of the screen
             String header = String.format("%s.%s::%s.%s():", LOGGER, level, className, caller);
             String logMessage = String.format("%-60s\t%s", header, message);
