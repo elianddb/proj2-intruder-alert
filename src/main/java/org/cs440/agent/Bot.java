@@ -92,8 +92,11 @@ public class Bot extends Agent implements Movement, Action {
 
         for (int i = 0; i < GRID_SIZE; i++) {
             for (int j = 0; j < GRID_SIZE; j++) {
-                if (probabilityMap[i][j] > maxProbability) {
-                    maxProbability = probabilityMap[i][j];
+                double currentProbability = probabilityMap[i][j];
+                int distance = Math.abs(i - location.x()) + Math.abs(j - location.y());
+                int maxDistance = Math.abs(maxLocation.x() - location.x()) + Math.abs(maxLocation.y() - location.y());
+                if (probabilityMap[i][j] > maxProbability || (currentProbability == maxProbability && distance < maxDistance)) {
+                    maxProbability = currentProbability;
                     maxLocation = new Location(i, j);
                 }
             }
@@ -103,29 +106,18 @@ public class Bot extends Agent implements Movement, Action {
     private void findPath(Location targetLocation) {
         bfs(location, targetLocation);
     }
-
-
-
-
-
-
-
-
     private void bfs(Location start, Location goal) {
         if (start.equals(goal)) {
             App.logger.debug("Start and goal are the same.");
-            return; // Early exit if start and goal are the same
+            return;
         }
-        int x = goal.x();
-        int y = goal.y();
-    
         Queue<Location> queue = new LinkedList<>();
         Map<Location, Location> starter = new HashMap<>();
         Set<Location> visited = new HashSet<>();
     
         queue.add(start);
         visited.add(start);
-        starter.put(start, null); // Start has no predecessor
+        starter.put(start, null);
     
         while (!queue.isEmpty()) {
             Location current = queue.poll();
@@ -136,12 +128,10 @@ public class Bot extends Agent implements Movement, Action {
                 reconstructPath(starter, current);
                 return;
             }
-    
-            // Check all four possible directions
             for (Direction direction : Direction.values()) {
                 Location next = new Location(current.x() + direction.dx, current.y() + direction.dy);
                 if (isValid(next, visited)) {
-                    if (!visited.contains(next)) { // Ensure not already visited
+                    if (!visited.contains(next)) { 
                         queue.add(next);
                         visited.add(next);
                         starter.put(next, current);
@@ -163,83 +153,56 @@ public class Bot extends Agent implements Movement, Action {
         Deque<Direction> path = new LinkedList<>();
         while (current != null) {
             Location prev = cameFrom.get(current);
-            if (prev == null) break; // Reached the start of the path
+            if (prev == null) break;
     
             Direction direction = determineDirectionFromLocations(prev, current);
-            path.addFirst(direction);  // Add to the front to reverse the path
-            current = prev; // Move to previous node
+            path.addFirst(direction); 
+            current = prev;
         }
     
-        moveQueue.addAll(path);  // Add the entire path to the move queue
+        moveQueue.addAll(path); 
         App.logger.debug("Path reconstructed: " + path);
     }
-private Direction determineDirectionFromLocations(Location from, Location to) {
-    int dx = to.x() - from.x();
-    int dy = to.y() - from.y();
-    if (dx > 0) return Direction.RIGHT;
-    if (dx < 0) return Direction.LEFT;
-    if (dy > 0) return Direction.DOWN;
-    if (dy < 0) return Direction.UP;
-    return Direction.NONE; // Should never happen in correct BFS
-}
+    private Direction determineDirectionFromLocations(Location from, Location to) {
+        int dx = to.x() - from.x();
+        int dy = to.y() - from.y();
+        if (dx > 0) return Direction.RIGHT;
+        if (dx < 0) return Direction.LEFT;
+        if (dy > 0) return Direction.DOWN;
+        if (dy < 0) return Direction.UP;
+        return Direction.NONE;
+    }
+    private void updateProbabilityMap(boolean sensed) {
+        double normalizationFactor = 0.0;
 
+        double[][] tempProbabilityMap = new double[GRID_SIZE][GRID_SIZE];
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-private void updateProbabilityMap(boolean sensed) {
-    double normalizationFactor = 0.0;
-
-    double[][] tempProbabilityMap = new double[GRID_SIZE][GRID_SIZE];
-
-    for (int i = 0; i < GRID_SIZE; i++) {
-        for (int j = 0; j < GRID_SIZE; j++) {
-            if (ship.getTile(i, j).is(Tile.Status.OPEN)) {  
-                int distance = Math.abs(i - location.x()) + Math.abs(j - location.y());
-                double probability = Math.exp(-sensor.getSensitivity() * (distance - 1));
+        for (int i = 0; i < GRID_SIZE; i++) {
+            for (int j = 0; j < GRID_SIZE; j++) {
+                if (ship.getTile(i, j).is(Tile.Status.OPEN)) {  
+                    int distance = Math.abs(i - location.x()) + Math.abs(j - location.y());
+                    double probability = Math.exp(-sensor.getSensitivity() * (distance - 1));
                 if (!sensed) {
                     probability = 1 - probability;
                 }
                 tempProbabilityMap[i][j] = probabilityMap[i][j] * probability;
                 normalizationFactor += tempProbabilityMap[i][j];
-            } else {
-                tempProbabilityMap[i][j] = 0; 
+                } else {
+                    tempProbabilityMap[i][j] = 0; 
+                }
             }
         }
-    }
 
-    for (int i = 0; i < GRID_SIZE; i++) {
-        for (int j = 0; j < GRID_SIZE; j++) {
-            if (ship.getTile(i, j).is(Tile.Status.OPEN)) {
-                probabilityMap[i][j] = tempProbabilityMap[i][j] / normalizationFactor;
-            } else {
-                probabilityMap[i][j] = 0;
+        for (int i = 0; i < GRID_SIZE; i++) {
+            for (int j = 0; j < GRID_SIZE; j++) {
+                if (ship.getTile(i, j).is(Tile.Status.OPEN)) {
+                    probabilityMap[i][j] = tempProbabilityMap[i][j] / normalizationFactor;
+                } else {
+                    probabilityMap[i][j] = 0;
+                }
             }
         }
     }
-}
     @Override
     public String toString() {
         return "Bot [identifier=" + identifier + ", location=" + location + "]";
@@ -257,5 +220,4 @@ private void updateProbabilityMap(boolean sensed) {
             }
         }
     }
-
 }

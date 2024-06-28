@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import org.cs440.Log.Level;
 import org.cs440.agent.Bot;
+import org.cs440.agent.StationaryMouse;
 import org.cs440.agent.StochasticMouse;
 import org.cs440.ship.Ship;
 
@@ -14,7 +15,8 @@ public class App {
         logger.setLevel(Level.DEBUG);
         
         Ship ship = new Ship(40, 40);
-        StochasticMouse mouse = new StochasticMouse('M');
+        //StochasticMouse mouse = new StochasticMouse('M');
+        StationaryMouse mouse = new StationaryMouse('M');
         Bot bot = new Bot('A', mouse);
         
         Simulation simulation = new Simulation(ship);
