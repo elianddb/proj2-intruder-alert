@@ -24,13 +24,13 @@ public class Bot extends Agent implements Movement, Action {
     private double[][] probabilityMap;
     private final static int GRID_SIZE = 40;
     private Queue<Direction> moveQueue = new LinkedList<>();
+    private boolean firstIteration = true;
 
     public Bot(char identifier, Agent target, double sensorSensitivity) {
         super(identifier);
         this.sensor = new Sensor(this, target, sensorSensitivity);
         this.target = (Target) target;
         this.probabilityMap = new double[GRID_SIZE][GRID_SIZE];
-        initializeProbabilityMap();
     }
 
     public Bot(char identifier, Agent target) {
@@ -61,6 +61,10 @@ public class Bot extends Agent implements Movement, Action {
 
     @Override
     public void perform() {
+        if(firstIteration == true) {
+            initializeProbabilityMap();
+            firstIteration = false;
+        }
         App.logger.debug("Starting perform with moveQueue empty: " + moveQueue.isEmpty());
         boolean sensed = sensor.sense();
         App.logger.debug("Sensor sensed: " + sensed);
@@ -118,12 +122,12 @@ public class Bot extends Agent implements Movement, Action {
         int y = goal.y();
     
         Queue<Location> queue = new LinkedList<>();
-        Map<Location, Location> cameFrom = new HashMap<>();
+        Map<Location, Location> starter = new HashMap<>();
         Set<Location> visited = new HashSet<>();
     
         queue.add(start);
         visited.add(start);
-        cameFrom.put(start, null); // Start has no predecessor
+        starter.put(start, null); // Start has no predecessor
     
         while (!queue.isEmpty()) {
             Location current = queue.poll();
@@ -131,7 +135,7 @@ public class Bot extends Agent implements Movement, Action {
     
             if (current.equals(goal)) {
                 App.logger.debug("Goal reached: " + goal);
-                reconstructPath(cameFrom, current);
+                reconstructPath(starter, current);
                 return;
             }
     
@@ -142,7 +146,7 @@ public class Bot extends Agent implements Movement, Action {
                     if (!visited.contains(next)) { // Ensure not already visited
                         queue.add(next);
                         visited.add(next);
-                        cameFrom.put(next, current);
+                        starter.put(next, current);
                         App.logger.debug("Adding to queue: " + next);
                     }
                 }
@@ -246,7 +250,12 @@ private void updateProbabilityMap(boolean sensed) {
         double initialProbability = 1.0 / (GRID_SIZE * GRID_SIZE);
         for (int i = 0; i < GRID_SIZE; i++) {
             for (int j = 0; j < GRID_SIZE; j++) {
-                probabilityMap[i][j] = initialProbability;
+                if(ship.getTile(i, j).is(Tile.Status.OPEN)) {
+                    probabilityMap[i][j] = initialProbability;
+                } else {
+                    probabilityMap[i][j] = 0;
+                }   
+
             }
         }
     }
