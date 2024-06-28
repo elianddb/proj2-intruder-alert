@@ -112,7 +112,14 @@ public class Simulation {
             ++noOfSteps;
         }
 
+        // Add last frame with updated states
+        synchronized (frameBuffer) {
+            frameBuffer.add(toString());
+        }
+        
+        while (!frameBuffer.isEmpty()); // Wait for last frame to draw
         drawScheduler.shutdown();
+
         --noOfSteps; // Exclude final step
     }
 
