@@ -114,10 +114,10 @@ public class Simulation {
         
         // Add last frame with updated states
         frameBuffer.add(toString());
-        // delay shutdown to allow final frame to be drawn
+        // Delay shutdown to allow final frame to be drawn
         try {
             while (!frameBuffer.isEmpty()) {
-                Thread.sleep(100);
+                Thread.sleep(100); // 100ms avoids constant CPU polling
             }
         } catch (InterruptedException e) {
             App.logger.error("Failed to delay shutdown: " + e.getMessage());
