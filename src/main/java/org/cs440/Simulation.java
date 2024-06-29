@@ -82,7 +82,7 @@ public class Simulation {
             }
         }, 100, ms, TimeUnit.MILLISECONDS); // Initial delay to allow frame buffer to fill
         
-        while (running || !frameBuffer.isEmpty()) {
+        while (running) {
             // We only want to lock the frame buffer when necessary.
             // Including agents' actions in this synchronized block
             // could cause a deadlock (Thread waiting for another
@@ -111,18 +111,22 @@ public class Simulation {
             }
             ++noOfSteps;
         }
-
-        // Add last frame with updated states
-        synchronized (frameBuffer) {
-            frameBuffer.add(toString());
-
-        }
         
-        while (!frameBuffer.isEmpty()); // Wait for last frame to draw
-
+        // Add last frame with updated states
+        frameBuffer.add(toString());
+        // delay shutdown to allow final frame to be drawn
+        try {
+            while (!frameBuffer.isEmpty()) {
+                Thread.sleep(100);
+            }
+        } catch (InterruptedException e) {
+            App.logger.error("Failed to delay shutdown: " + e.getMessage());
+        }
+        drawScheduler.shutdown();
+        
         --noOfSteps; // Exclude final step
 
-        drawScheduler.shutdown();
+        App.logger.debug("Draw scheduler shutdown");
     }
 
     public void run() { // Runs the run(ms) above but without draw/delay
