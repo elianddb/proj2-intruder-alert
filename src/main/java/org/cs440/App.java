@@ -29,7 +29,7 @@ public class App {
             System.in.read();
         }
 
-        simulation.run(100); // Exclude delay to run without drawing frames
+        simulation.run(75); // Exclude delay to run without drawing frames
 
         App.logger.info("Simulation completed in " + simulation.stepsTaken() + " steps");
         System.out.println("Press Enter to exit...");
