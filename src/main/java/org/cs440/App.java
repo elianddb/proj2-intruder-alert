@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import org.cs440.Log.Level;
 import org.cs440.agent.Bot;
+import org.cs440.agent.StationaryMouse;
 import org.cs440.agent.StochasticMouse;
 import org.cs440.ship.Ship;
 
@@ -15,6 +16,7 @@ public class App {
         
         Ship ship = new Ship(40, 40);
         StochasticMouse mouse = new StochasticMouse('M');
+        // StationaryMouse mouse = new StationaryMouse('M');
         Bot bot = new Bot('A', mouse);
         
         Simulation simulation = new Simulation(ship);
@@ -27,9 +29,13 @@ public class App {
             System.in.read();
         }
 
-        simulation.run(100); // Exclude delay to run without drawing frames
+        simulation.run(75); // Exclude delay to run without drawing frames
 
+        App.logger.info("Simulation completed in " + simulation.stepsTaken() + " steps");
         System.out.println("Press Enter to exit...");
         System.in.read();
+
+        logger.writeTo("App");
+        App.logger.info("Log messages written to file: App.log");
     }
 }

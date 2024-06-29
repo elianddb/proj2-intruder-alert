@@ -32,14 +32,9 @@ public abstract class Agent {
         ship.setTile(location, Ship.OCCUPIED);
     }
 
-    public interface Target {
-        public void interact(Interaction interaction);
+    public interface Mortality {
+        public boolean kill(int x, int y);
         public boolean alive();
-
-        public static enum Interaction {
-            KILL,
-            NONE
-        }
     }
 
     public interface Movement {
@@ -58,6 +53,17 @@ public abstract class Agent {
             private Direction(int dx, int dy) {
                 this.dx = dx;
                 this.dy = dy;
+            }
+            public static Direction fromDx(int dx) {
+                if (dx > 0) return RIGHT;
+                else if (dx < 0) return LEFT;
+                else return NONE;
+            }
+        
+            public static Direction fromDy(int dy) {
+                if (dy > 0) return DOWN;
+                else if (dy < 0) return UP;
+                else return NONE;
             }
         }
     }

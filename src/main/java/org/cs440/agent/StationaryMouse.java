@@ -1,8 +1,8 @@
 package org.cs440.agent;
 
-import org.cs440.agent.Agent.Target;
+import org.cs440.agent.Agent.Mortality;
 
-public class StationaryMouse extends Agent implements Target {
+public class StationaryMouse extends Agent implements Mortality {
     private boolean alive = true;
 
     public StationaryMouse(char identifier) {
@@ -10,14 +10,13 @@ public class StationaryMouse extends Agent implements Target {
     }
 
     @Override
-    public void interact(Interaction interaction) {
-        switch (interaction) {
-            case KILL:
-                alive = false;
-                break;
-            default:
-                break;
+    public boolean kill(int x, int y) {
+        if (location.x() == x && location.y() == y) {
+            alive = false;
+            identifier = '%';
         }
+
+        return !alive;
     }
 
     @Override

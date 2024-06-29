@@ -19,6 +19,7 @@ public class Simulation {
     private HashMap<Agent, Action> actions;
     private boolean running = false;
     private int frameCount = 0;
+    private int noOfSteps = 0;
     private final int frameBufferSize;
 
     public Simulation (Ship ship, int frameBufferSize) {
@@ -29,7 +30,7 @@ public class Simulation {
     }
 
     public Simulation(Ship ship) {
-        this(ship, 10);
+        this(ship, 200);
     }
 
     public void addAgent(Agent agent) {
@@ -48,6 +49,10 @@ public class Simulation {
         }
 
         return null;
+    }
+
+    public int stepsTaken() {
+        return noOfSteps;
     }
 
     public void stop() {
@@ -76,14 +81,14 @@ public class Simulation {
                 App.logger.info(String.format("Frame %d", ++frameCount));
             }
         }, 100, ms, TimeUnit.MILLISECONDS); // Initial delay to allow frame buffer to fill
-
+        
         while (running) {
             // We only want to lock the frame buffer when necessary.
             // Including agents' actions in this synchronized block
             // could cause a deadlock (Thread waiting for another
             // thread to release a piece of memory)
             synchronized (frameBuffer) {
-                if (frameBuffer.size() < frameBufferSize) {
+                if (running && frameBuffer.size() < frameBufferSize) {
                     frameBuffer.add(toString()); // Queue new frame state
                 } else {
                     continue;
@@ -100,11 +105,28 @@ public class Simulation {
                 }
             }
             
-
+            App.logger.debug("closedCount = " + closedCount);
             if (closedCount == actions.size()) {
                 stop();
             }
+            ++noOfSteps;
         }
+        
+        // Add last frame with updated states
+        frameBuffer.add(toString());
+        // Delay shutdown to allow final frame to be drawn
+        try {
+            while (!frameBuffer.isEmpty()) {
+                Thread.sleep(100); // 100ms avoids constant CPU polling
+            }
+        } catch (InterruptedException e) {
+            App.logger.error("Failed to delay shutdown: " + e.getMessage());
+        }
+        drawScheduler.shutdown();
+        
+        --noOfSteps; // Exclude final step
+
+        App.logger.debug("Draw scheduler shutdown");
     }
 
     public void run() { // Runs the run(ms) above but without draw/delay
@@ -120,16 +142,19 @@ public class Simulation {
                 }
             }
             
-
             if (closedCount == actions.size()) {
                 stop();
             }
+            ++noOfSteps;
         }
+
+        --noOfSteps; // Exclude final step
     }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
+        sb.append("\033[K"); // Sometimes init line doesn't clear correctly
         for (int y = 0; y < ship.height(); y++) {
             for (int x = 0; x < ship.width(); x++) {
                 Tile tile = ship.getTile(x, y);
