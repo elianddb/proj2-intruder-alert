@@ -6,6 +6,7 @@ import org.cs440.Log.Level;
 import org.cs440.agent.Bot;
 import org.cs440.agent.StationaryMouse;
 import org.cs440.agent.StochasticMouse;
+import org.cs440.agent.Algorithms.*;
 import org.cs440.ship.Ship;
 
 public class App {
@@ -17,7 +18,7 @@ public class App {
         Ship ship = new Ship(40, 40);
         StochasticMouse mouse = new StochasticMouse('M');
         // StationaryMouse mouse = new StationaryMouse('M');
-        Bot bot = new Bot('A', mouse);
+        Bot bot = new Bot('A', mouse, new Bot2());
         
         Simulation simulation = new Simulation(ship);
         simulation.addAgent(bot);
