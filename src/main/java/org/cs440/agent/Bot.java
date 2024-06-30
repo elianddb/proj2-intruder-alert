@@ -11,12 +11,13 @@ import java.util.Set;
 import org.cs440.App;
 import org.cs440.agent.Agent.Action;
 import org.cs440.agent.Agent.Movement;
+import org.cs440.agent.Algorithms.Algorithm;
 import org.cs440.ship.Ship;
 import org.cs440.ship.Tile;
 import org.cs440.ship.Tile.Location;
 import org.cs440.ship.Tile.Status;
 
-public class Bot extends Agent implements Movement, Action {
+public class Bot extends Agent implements Movement, Action  {
     protected Sensor sensor;
     private Mortality target;
     private double[][] probabilityMap;
@@ -25,16 +26,19 @@ public class Bot extends Agent implements Movement, Action {
     private boolean firstIteration = true;
     private int moveCount = 0;
     private int senseCount = 0;
+    private Algorithm algorithm;
+    private boolean botMove = false;
 
-    public Bot(char identifier, Agent target, double sensorSensitivity) {
+    public Bot(char identifier, Agent target, double sensorSensitivity, Algorithm algorithm) {
         super(identifier);
         this.sensor = new Sensor(this, target, sensorSensitivity);
         this.target = (Mortality) target;
         this.probabilityMap = new double[GRID_SIZE][GRID_SIZE];
+        this.algorithm = algorithm;
     }
 
-    public Bot(char identifier, Agent target) {
-        this(identifier, target, 0.1);
+    public Bot(char identifier, Agent target, Algorithm algorithm) {
+        this(identifier, target, 0.1, algorithm);
     }
 
     @Override
@@ -64,7 +68,14 @@ public class Bot extends Agent implements Movement, Action {
         if (closed()) { // Don't want to keep moving if goal is complete
             return;
         }
+        algorithm.execute(this);
+    }
 
+    @Override
+    public boolean closed() {
+        return !target.alive();
+    }
+    public void bot1() {
         if(firstIteration == true) {
             initializeProbabilityMap();
             firstIteration = false;
@@ -91,10 +102,42 @@ public class Bot extends Agent implements Movement, Action {
             moveCount++;
         } 
     }
-
-    @Override
-    public boolean closed() {
-        return !target.alive();
+    public void bot2() {
+        if(firstIteration == true) {
+            initializeProbabilityMap();
+            firstIteration = false;
+        }
+        if (moveQueue.isEmpty()) {
+            App.logger.debug("MoveQueue is empty, planning path.");
+            boolean sensed = sensor.sense();
+            senseCount++;
+            updateProbabilityMap(sensed);
+            planPath();
+        } else if (botMove == true) {
+            App.logger.debug("Moved previously, sensing.");
+            boolean sensed = sensor.sense();
+            senseCount++;
+            updateProbabilityMap(sensed);
+            botMove = false;
+        } else {
+            App.logger.debug("Executing move from queue.");
+            Direction direction = moveQueue.poll();
+            int x = location.x() + direction.dx;
+            int y = location.y() + direction.dy;
+            move(direction);
+            if (target.kill(x, y)) {
+                App.logger.debug("Bot " + identifier + " encountered target at location " + location);
+                App.logger.debug("Bot " + identifier + " killed target " + ((Agent)target).identifier());
+                App.logger.debug("Killed target in " + moveCount + " moves and " + senseCount + " senses for a total of " + (moveCount + senseCount) + " actions.");
+                return; // Didn't move target was in way
+            }
+            moveCount++;
+            botMove = true;
+        }
+    }
+    public void bot3() {
+        //TO DO: Decide and implement bot3
+        return;
     }
     private void planPath() {
         Location nextLocation = getMaxProbabilityLocation();
