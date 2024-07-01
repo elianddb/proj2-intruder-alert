@@ -19,7 +19,7 @@ import org.cs440.ship.Tile.Status;
 
 public class Bot extends Agent implements Movement, Action  {
     protected Sensor sensor;
-    private Mortality target;
+    private Capture target;
     private double[][] probabilityMap;
     private final static int GRID_SIZE = 40;
     private Queue<Direction> moveQueue = new LinkedList<>();
@@ -32,7 +32,7 @@ public class Bot extends Agent implements Movement, Action  {
     public Bot(char identifier, Agent target, double sensorSensitivity, Algorithm algorithm) {
         super(identifier);
         this.sensor = new Sensor(this, target, sensorSensitivity);
-        this.target = (Mortality) target;
+        this.target = (Capture) target;
         this.probabilityMap = new double[GRID_SIZE][GRID_SIZE];
         this.algorithm = algorithm;
     }
@@ -73,7 +73,7 @@ public class Bot extends Agent implements Movement, Action  {
 
     @Override
     public boolean closed() {
-        return !target.alive();
+        return !target.isFree();
     }
     public void bot1() {
         if(firstIteration == true) {
@@ -93,7 +93,7 @@ public class Bot extends Agent implements Movement, Action  {
             int x = location.x() + direction.dx;
             int y = location.y() + direction.dy;
             move(direction);
-            if (target.kill(x, y)) {
+            if (target.capture(x, y)) {
                 App.logger.debug("Bot " + identifier + " encountered target at location " + location);
                 App.logger.debug("Bot " + identifier + " killed target " + ((Agent)target).identifier());
                 App.logger.debug("Killed target in " + moveCount + " moves and " + senseCount + " senses for a total of " + (moveCount + senseCount) + " actions.");
@@ -125,7 +125,7 @@ public class Bot extends Agent implements Movement, Action  {
             int x = location.x() + direction.dx;
             int y = location.y() + direction.dy;
             move(direction);
-            if (target.kill(x, y)) {
+            if (target.capture(x, y)) {
                 App.logger.debug("Bot " + identifier + " encountered target at location " + location);
                 App.logger.debug("Bot " + identifier + " killed target " + ((Agent)target).identifier());
                 App.logger.debug("Killed target in " + moveCount + " moves and " + senseCount + " senses for a total of " + (moveCount + senseCount) + " actions.");
