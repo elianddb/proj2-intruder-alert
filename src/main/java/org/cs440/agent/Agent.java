@@ -32,9 +32,9 @@ public abstract class Agent {
         ship.setTile(location, Ship.OCCUPIED);
     }
 
-    public interface Mortality {
-        public boolean kill(int x, int y);
-        public boolean alive();
+    public interface Capture {
+        public boolean capture(int x, int y);
+        public boolean success();
     }
 
     public interface Movement {
