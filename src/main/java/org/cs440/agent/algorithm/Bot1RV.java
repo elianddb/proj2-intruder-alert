@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
+import java.util.Queue;
 import java.util.Stack;
 
 import org.cs440.App;
@@ -28,8 +29,8 @@ public class Bot1RV implements Algorithm {
         probabilityMap = new double[height][width];
         for (int i = 0; i < height; i++) { // Base probability
             for (int j = 0; j < width; j++) {
-                if (ship.getTile(i, j).is(Status.OPEN)) {
-                    probabilityMap[i][j] = 1.0 / ship.numOfOpen();
+                if (!ship.getTile(i, j).is(Status.BLOCKED)) {
+                    probabilityMap[i][j] = 1.0 / (ship.numOfOpen() + 1);
                 }
             }
         }
@@ -37,6 +38,7 @@ public class Bot1RV implements Algorithm {
 
     @Override
     public void execute(Bot bot) {
+        App.logger.debug("Bot1RV moveQueue is empty: " + moveQueue.isEmpty());
         if (!moveQueue.isEmpty()) {
             Direction direction = moveQueue.peek();
             bot.move(moveQueue.poll());
@@ -50,51 +52,32 @@ public class Bot1RV implements Algorithm {
         ++sensorCount;
         boolean sensorBeeped = bot.getSensor().beeped();
         double normalizationFactor = 0.0;
-
-        // Calculate overall probability
-        double overallBeepProbability = 0.0;
+        // Update probability map
         int height = bot.getShip().getHeight();
         int width = bot.getShip().getWidth();
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-                if (!bot.getShip().getTile(i, j).is(Status.OPEN)) {
-                    continue;
-                }
-
-                int manhattanDistance = bot.getLocation().manhattanDistance(j, i);
-                double probability = Math.exp(-bot.getSensor().getSensitivity() * (manhattanDistance - 1));
-                overallBeepProbability += sensorBeeped ? probability : 1 - probability * probabilityMap[i][j];
-            }
-        }
-
-        // Update probability map
-        double maxProbability = 0.0;
-        Location target = new Location(0, 0);
         double[][] newProbabilityMap = new double[height][width];
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
-                if (!bot.getShip().getTile(i, j).is(Status.OPEN)) {
+                if (bot.getShip().getTile(i, j).is(Status.BLOCKED)) {
                     continue;
                 }
 
                 int manhattanDistance = bot.getLocation().manhattanDistance(j, i);
-                double beepProbability = Math.exp(-bot.getSensor().getSensitivity() * (manhattanDistance - 1));
+                double beepProbabilityForGivenTile = Math.exp(-bot.getSensor().getSensitivity() * (manhattanDistance - 1));
+                double likelihood = sensorBeeped ? beepProbabilityForGivenTile : 1 - beepProbabilityForGivenTile;
+                double prior = probabilityMap[i][j];
 
-                // Calculate likelihood ratio
-                double likelihoodRatio = sensorBeeped ? 
-                    beepProbability / overallBeepProbability :
-                    (1 - beepProbability) / overallBeepProbability;
-                
-
-                newProbabilityMap[i][j] = likelihoodRatio * probabilityMap[i][j];
+                newProbabilityMap[i][j] = prior * likelihood;
                 normalizationFactor += newProbabilityMap[i][j];
             }
         }
 
         // Normalize probability map
+        double maxProbability = -1.0;
+        Location target = new Location(0, 0);
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
-                if (!bot.getShip().getTile(i, j).is(Status.OPEN)) {
+                if (bot.getShip().getTile(i, j).is(Status.BLOCKED)) {
                     continue;
                 }
 
@@ -138,7 +121,7 @@ public class Bot1RV implements Algorithm {
                     continue;
                 }
 
-                if (!bot.getShip().getTile(neighbor).is(Status.OPEN)) {
+                if (bot.getShip().getTile(neighbor).is(Status.BLOCKED)) {
                     continue;
                 }
 
@@ -153,7 +136,6 @@ public class Bot1RV implements Algorithm {
         
         App.logger.debug(toString());
         App.logger.writeTo("bot1rv");
-        probabilityMap = newProbabilityMap;
     }
 
     @Override

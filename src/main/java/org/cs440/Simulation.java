@@ -88,7 +88,7 @@ public class Simulation {
             // could cause a deadlock (Thread waiting for another
             // thread to release a piece of memory)
             synchronized (frameBuffer) {
-                if (running && frameBuffer.size() < frameBufferSize) {
+                if (frameBuffer.size() < frameBufferSize) {
                     frameBuffer.add(toString()); // Queue new frame state
                 } else {
                     continue;
