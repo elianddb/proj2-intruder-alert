@@ -27,11 +27,13 @@ public class Bot1RV implements Algorithm {
 
         int height = ship.getHeight();
         int width = ship.getWidth();
+        // Since the is empty with a bot in it, the probability of a mouse being in any open tile is uniform
+        int uniformProbability = 1 / (ship.numOfOpen() + 1);
         probabilityMap = new double[height][width];
-        for (int i = 0; i < height; i++) { // Base probability
+        for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
                 if (!ship.getTile(j, i).is(Status.BLOCKED)) {
-                    probabilityMap[i][j] = 1.0 / (ship.numOfOpen() + 1);
+                    probabilityMap[i][j] = uniformProbability;
                 }
             }
         }
@@ -80,7 +82,7 @@ public class Bot1RV implements Algorithm {
         }
 
         // Normalize probability map
-        totalProbability += EPSILON * (bot.getShip().numOfOpen() + 1); // Adding smoothing constant to total probability
+        totalProbability += EPSILON * (bot.getShip().numOfOpen() + 1); // Adding smoothing constant to total probability; ensures no division by zero
         Location target = bot.getLocation();
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
