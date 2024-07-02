@@ -16,9 +16,9 @@ public class App {
         logger.setLevel(Level.DEBUG);
         
         Ship ship = new Ship(40, 40);
-        // StochasticMouse mouse = new StochasticMouse('M');
-        StationaryMouse mouse = new StationaryMouse('M');
-        Bot bot = new Bot('A', mouse, new Bot1RV(ship));
+        StochasticMouse mouse = new StochasticMouse('M');
+        // StationaryMouse mouse = new StationaryMouse('M');
+        Bot bot = new Bot('A', mouse, new Bot2RV(ship));
         
         Simulation simulation = new Simulation(ship);
         simulation.addAgent(bot);

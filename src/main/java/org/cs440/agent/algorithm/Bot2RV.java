@@ -3,7 +3,9 @@ package org.cs440.agent.algorithm;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.PriorityQueue;
 import java.util.Queue;
+import java.util.Stack;
 
 import org.cs440.App;
 import org.cs440.agent.Agent.Movement.Direction;
@@ -12,7 +14,7 @@ import org.cs440.ship.Ship;
 import org.cs440.ship.Tile.Location;
 import org.cs440.ship.Tile.Status;
 
-public class Bot2RV implements Algorithm {
+public class Bot2RV implements Algorithm{
     private static final double EPSILON = 1e-10; // Small constant for smoothing
 
     private LinkedList<Direction> moveQueue;
@@ -25,10 +27,14 @@ public class Bot2RV implements Algorithm {
         int height = ship.getHeight();
         int width = ship.getWidth();
         // Since the is empty with a bot in it, the probability of a mouse being in any open tile is uniform
-        int uniformProbability = 1 / (ship.numOfOpen() + 1);
+        double uniformProbability = 1.0 / (ship.numOfOpen() + 1);
         probabilityMap = new double[height][width];
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
+                if (ship.getTile(j, i).is(Status.BLOCKED)) {
+                    continue;
+                }
+                
                 if (!ship.getTile(j, i).is(Status.BLOCKED)) {
                     probabilityMap[i][j] = uniformProbability;
                 }
@@ -42,13 +48,17 @@ public class Bot2RV implements Algorithm {
             if (moveQueue.isEmpty()) {
                 planPath(bot);
             }
+            StringBuilder sb = new StringBuilder();
+            for (Direction direction : moveQueue) {
+                sb.append(direction.toString());
+            }
+            App.logger.debug("Move Queue: {" + sb.toString() + "}");
             Direction direction = moveQueue.peek();
             bot.move(moveQueue.poll());
             int x = bot.getLocation().x() + direction.dx;
             int y = bot.getLocation().y() + direction.dy;
             App.logger.debug("Attempting to move to: (" + x + ", " + y + ")");
             bot.getTarget().capture(x, y);
-            probabilityMap[y][x] = 0.0; // Set probability to zero after moving to new location
             sense = true;
             return;
         }
@@ -66,6 +76,11 @@ public class Bot2RV implements Algorithm {
                     continue;
                 }
 
+                if (bot.getLocation().equals(j, i)) {
+                    newProbabilityMap[i][j] = 0.0;
+                    continue;
+                }
+
                 int manhattanDistance = bot.getLocation().manhattanDistance(j, i);
                 double beepProbability = Math.exp(-bot.getSensor().getSensitivity() * (manhattanDistance - 1));
                 double likelihood = sensorBeeped ? beepProbability : 1 - beepProbability;
@@ -76,7 +91,7 @@ public class Bot2RV implements Algorithm {
         }
 
         // Normalize probability map
-        totalProbability += EPSILON * (bot.getShip().numOfOpen() + 1); // Adding smoothing constant to total probability; ensures no division by zero
+        totalProbability += EPSILON; // Adding smoothing constant to total probability; ensures no division by zero
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
                 if (bot.getShip().getTile(j, i).is(Status.BLOCKED)) {
@@ -92,7 +107,6 @@ public class Bot2RV implements Algorithm {
         sense = false;
         
         App.logger.debug("\n" + toString());
-        App.logger.writeTo("`Bot1RV`");
     }
 
     public void planPath(Bot bot) {
@@ -110,8 +124,6 @@ public class Bot2RV implements Algorithm {
                 }
             }
         }
-
-        moveQueue.clear();
 
         Queue<Location> fringe = new LinkedList<>();
         HashSet<Location> visited = new HashSet<>();
@@ -163,10 +175,17 @@ public class Bot2RV implements Algorithm {
     @Override
     public String toString() {
         // probability map
+        final String ANSI_RED = "\u001B[31m";
+        final String ANSI_RESET = "\u001B[0m";
+
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < probabilityMap.length; i++) {
             for (int j = 0; j < probabilityMap[i].length; j++) {
+                double probability = probabilityMap[i][j];
+                boolean isProbability = probability < 0.00001;
+                sb.append(isProbability ? "" : ANSI_RED);
                 sb.append(String.format("%.5f ", probabilityMap[i][j]));
+                sb.append(isProbability ? "" : ANSI_RESET);
             }
             sb.append("\n");
         }
