@@ -103,13 +103,15 @@ public class Tile {
         public Location[] cardinalNeighbors() {
             return new Location[] {up(), down(), left(), right()};
         }
+
         @Override
         public int hashCode() {
             int result = 17; // Arbitrary starting value
-            result = 31 * result + x; // 31 is a commonly used prime multiplier
-            result = 31 * result + y;
+            result = 31 * result + ((Integer) x).hashCode(); // 31 is a commonly used prime multiplier
+            result = 31 * result + ((Integer) y).hashCode();
             return result;
         }
+
         @Override
         public boolean equals(Object obj) {
             if (this == obj) {
