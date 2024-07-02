@@ -32,11 +32,11 @@ public class App {
 
         simulation.run(75); // Exclude delay to run without drawing frames
 
-        App.logger.info("Simulation completed in " + simulation.stepsTaken() + " steps");
+        logger.info("Simulation completed in " + simulation.stepsTaken() + " steps");
         System.out.println("Press Enter to exit...");
         System.in.read();
 
         logger.writeTo("App");
-        App.logger.info("Log messages written to file: App.log");
+        logger.info("Log messages written to file: App.log");
     }
 }
