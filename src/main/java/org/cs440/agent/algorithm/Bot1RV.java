@@ -19,9 +19,6 @@ public class Bot1RV implements Algorithm {
     private LinkedList<Direction> moveQueue;
     private double probabilityMap[][];
 
-    private int sensorCount = 0;
-    private int moveCount = 0;
-
     public Bot1RV(Ship ship) {
         this.moveQueue = new LinkedList<Direction>();
 
@@ -49,11 +46,9 @@ public class Bot1RV implements Algorithm {
             int x = bot.getLocation().x() + direction.dx;
             int y = bot.getLocation().y() + direction.dy;
             bot.getTarget().capture(x, y);
-            ++moveCount;
             return;
         }
 
-        ++sensorCount;
         moveQueue.clear();
         boolean sensorBeeped = bot.getSensor().beeped();
         // Update probability map
