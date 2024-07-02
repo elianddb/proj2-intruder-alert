@@ -113,7 +113,9 @@ public class Simulation {
         }
         
         // Add last frame with updated states
-        frameBuffer.add(toString());
+        synchronized (frameBuffer) {
+            frameBuffer.add(toString());
+        }
         // Delay shutdown to allow final frame to be drawn
         try {
             while (!frameBuffer.isEmpty()) {

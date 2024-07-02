@@ -303,4 +303,9 @@ public class Bot extends Agent implements Movement, Action  {
     public String toString() {
         return "Bot [identifier=" + identifier + ", location=" + location + "]";
     }
+
+    public int numOfOpen() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'numOfOpen'");
+    }
 }

@@ -16,8 +16,8 @@ public class App {
         logger.setLevel(Level.DEBUG);
         
         Ship ship = new Ship(40, 40);
-        StochasticMouse mouse = new StochasticMouse('M');
-        // StationaryMouse mouse = new StationaryMouse('M');
+        // StochasticMouse mouse = new StochasticMouse('M');
+        StationaryMouse mouse = new StationaryMouse('M');
         Bot bot = new Bot('A', mouse, new Bot1RV(ship));
         
         Simulation simulation = new Simulation(ship);
@@ -30,7 +30,7 @@ public class App {
             System.in.read();
         }
 
-        simulation.run(8); // Exclude delay to run without drawing frames
+        simulation.run(1); // Exclude delay to run without drawing frames
         //logger.debug("\n" + simulation.toString());
 
         logger.info("Simulation completed in " + simulation.stepsTaken() + " steps");

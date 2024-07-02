@@ -43,7 +43,7 @@ public class Log {
         }
     }
 
-    public void writeTo(String filename) {
+    public synchronized void writeTo(String filename) {
         try (FileWriter writer = new FileWriter(filename + ".log")) {
             for (String logMessage : logMessages) {
                 writer.write(logMessage + "\n");
