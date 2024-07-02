@@ -68,6 +68,7 @@ public class Bot extends Agent implements Movement, Action  {
         if (closed()) { // Don't want to keep moving if goal is complete
             return;
         }
+
         algorithm.execute(this);
     }
 
@@ -84,7 +85,7 @@ public class Bot extends Agent implements Movement, Action  {
 
         if (moveQueue.isEmpty()) {
             App.logger.debug("MoveQueue is empty, planning path.");
-            boolean sensed = sensor.sense();
+            boolean sensed = sensor.beeped();
             senseCount++;
             updateProbabilityMap(sensed);
             planPath();
@@ -96,7 +97,7 @@ public class Bot extends Agent implements Movement, Action  {
             move(direction);
             if (target.capture(x, y)) {
                 App.logger.debug("Bot " + identifier + " encountered target at location " + location);
-                App.logger.debug("Bot " + identifier + " killed target " + ((Agent)target).identifier());
+                App.logger.debug("Bot " + identifier + " killed target " + ((Agent)target).getIdentifier());
                 App.logger.debug("Killed target in " + moveCount + " moves and " + senseCount + " senses for a total of " + (moveCount + senseCount) + " actions.");
                 return; // Didn't move target was in way
             }
@@ -111,13 +112,13 @@ public class Bot extends Agent implements Movement, Action  {
         }
         if (moveQueue.isEmpty()) {
             App.logger.debug("MoveQueue is empty, planning path.");
-            boolean sensed = sensor.sense();
+            boolean sensed = sensor.beeped();
             senseCount++;
             updateProbabilityMap(sensed);
             planPath();
         } else if (botMove == true) {
             App.logger.debug("Moved previously, sensing.");
-            boolean sensed = sensor.sense();
+            boolean sensed = sensor.beeped();
             senseCount++;
             updateProbabilityMap(sensed);
             botMove = false;
@@ -129,7 +130,7 @@ public class Bot extends Agent implements Movement, Action  {
             move(direction);
             if (target.capture(x, y)) {
                 App.logger.debug("Bot " + identifier + " encountered target at location " + location);
-                App.logger.debug("Bot " + identifier + " killed target " + ((Agent)target).identifier());
+                App.logger.debug("Bot " + identifier + " killed target " + ((Agent)target).getIdentifier());
                 App.logger.debug("Killed target in " + moveCount + " moves and " + senseCount + " senses for a total of " + (moveCount + senseCount) + " actions.");
                 return; // Didn't move target was in way
             }
@@ -288,6 +289,14 @@ public class Bot extends Agent implements Movement, Action  {
 
             }
         }
+    }
+
+    public Sensor getSensor() {
+        return sensor;
+    }
+
+    public Capture getTarget() {
+        return target;
     }
 
     @Override

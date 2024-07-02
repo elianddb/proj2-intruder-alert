@@ -16,20 +16,24 @@ public abstract class Agent {
         this.identifier = identifier;
     }
 
-    public Location location() {
-        return location;
-    }
-
-    public char identifier() {
-        return identifier;
-    }
-
     public void link(Ship ship) {
         this.ship = ship;
         Tile tile = ship.requestRandomTile(Status.OPEN);
         this.location = tile.location();
         this.underneath = tile.type();
         ship.setTile(location, Ship.OCCUPIED);
+    }
+
+    public Location getLocation() {
+        return location;
+    }
+
+    public char getIdentifier() {
+        return identifier;
+    }
+
+    public Ship getShip() {
+        return ship;
     }
 
     public interface Capture {

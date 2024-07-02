@@ -254,11 +254,11 @@ public class Ship {
         return deadEnds.size();
     }
 
-    public int width() {
+    public int getWidth() {
         return tiles[0].length;
     }
 
-    public int height() {
+    public int getHeight() {
         return tiles.length;
     }
 

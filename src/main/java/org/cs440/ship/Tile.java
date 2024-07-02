@@ -108,6 +108,10 @@ public class Tile {
             return Math.abs(x - location.x) + Math.abs(y - location.y);
         }
 
+        public int manhattanDistance(int x, int y) {
+            return Math.abs(this.x - x) + Math.abs(this.y - y);
+        }
+
         @Override
         public int hashCode() {
             int result = 17; // Arbitrary starting value

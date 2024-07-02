@@ -43,7 +43,7 @@ public class Simulation {
 
     public Agent getAgent(int x, int y) {
         for (Agent agent : agents) {
-            if (agent.location().x() == x && agent.location().y() == y) {
+            if (agent.getLocation().x() == x && agent.getLocation().y() == y) {
                 return agent;
             }
         }
@@ -155,19 +155,19 @@ public class Simulation {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("\033[K"); // Sometimes init line doesn't clear correctly
-        for (int y = 0; y < ship.height(); y++) {
-            for (int x = 0; x < ship.width(); x++) {
+        for (int y = 0; y < ship.getHeight(); y++) {
+            for (int x = 0; x < ship.getWidth(); x++) {
                 Tile tile = ship.getTile(x, y);
                 if (tile.is(Ship.OCCUPIED)) {
                     Agent entity = getAgent(x, y);
-                    sb.append(entity.identifier());
+                    sb.append(entity.getIdentifier());
                 } else {
                     sb.append(tile.identifier());
                 }
 
-                sb.append(x < ship.width() - 1 ? " " : "");
+                sb.append(x < ship.getWidth() - 1 ? " " : "");
             }
-            sb.append(y < ship.height() - 1 ? "\n" : "");
+            sb.append(y < ship.getHeight() - 1 ? "\n" : "");
             sb.append("\033[K"); // Clear end of line
         }
 
