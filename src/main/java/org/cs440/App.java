@@ -6,7 +6,7 @@ import org.cs440.Log.Level;
 import org.cs440.agent.Bot;
 import org.cs440.agent.StationaryMouse;
 import org.cs440.agent.StochasticMouse;
-import org.cs440.agent.Algorithms.*;
+import org.cs440.agent.algorithm.*;
 import org.cs440.ship.Ship;
 
 public class App {

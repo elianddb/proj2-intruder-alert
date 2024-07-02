@@ -11,7 +11,7 @@ import java.util.Set;
 import org.cs440.App;
 import org.cs440.agent.Agent.Action;
 import org.cs440.agent.Agent.Movement;
-import org.cs440.agent.Algorithms.Algorithm;
+import org.cs440.agent.algorithm.Algorithm;
 import org.cs440.ship.Ship;
 import org.cs440.ship.Tile;
 import org.cs440.ship.Tile.Location;
@@ -75,6 +75,7 @@ public class Bot extends Agent implements Movement, Action  {
     public boolean closed() {
         return !target.isFree();
     }
+
     public void bot1() {
         if(firstIteration == true) {
             initializeProbabilityMap();
@@ -102,6 +103,7 @@ public class Bot extends Agent implements Movement, Action  {
             moveCount++;
         } 
     }
+
     public void bot2() {
         if(firstIteration == true) {
             initializeProbabilityMap();
@@ -135,21 +137,26 @@ public class Bot extends Agent implements Movement, Action  {
             botMove = true;
         }
     }
+
     public void bot3() {
         //TO DO: Decide and implement bot3
         return;
     }
+
     private void planPath() {
         Location nextLocation = getMaxProbabilityLocation();
         moveQueue.clear();
         findPath(nextLocation);
     }
+
     public int getMoves() {
         return moveCount;
     }
+
     public int getSenses() {
         return senseCount;
     }
+    
     private Location getMaxProbabilityLocation() {
         Location maxLocation = location;  
         double maxProbability = 0.0;
@@ -167,9 +174,11 @@ public class Bot extends Agent implements Movement, Action  {
         }
         return maxLocation;
     }
+
     private void findPath(Location targetLocation) {
         bfs(location, targetLocation);
     }
+
     private void bfs(Location start, Location goal) {
         if (start.equals(goal)) {
             App.logger.debug("Start and goal are the same.");
@@ -211,7 +220,6 @@ public class Bot extends Agent implements Movement, Action  {
     private boolean isValid(Location loc, Set<Location> visited) {
         return ship.withinBounds(loc.x(), loc.y()) && !visited.contains(loc) && (ship.getTile(loc.x(), loc.y()).is(Tile.Status.OPEN)|| ship.getTile(loc.x(), loc.y()).is(Tile.Status.OCCUPIED));
     }
-    
     
     private void reconstructPath(Map<Location, Location> cameFrom, Location current) {
         Deque<Direction> path = new LinkedList<>();
@@ -267,10 +275,7 @@ public class Bot extends Agent implements Movement, Action  {
             }
         }
     }
-    @Override
-    public String toString() {
-        return "Bot [identifier=" + identifier + ", location=" + location + "]";
-    }
+
     private void initializeProbabilityMap() {
         double initialProbability = 1.0 / (GRID_SIZE * GRID_SIZE);
         for (int i = 0; i < GRID_SIZE; i++) {
@@ -283,5 +288,10 @@ public class Bot extends Agent implements Movement, Action  {
 
             }
         }
+    }
+
+    @Override
+    public String toString() {
+        return "Bot [identifier=" + identifier + ", location=" + location + "]";
     }
 }
