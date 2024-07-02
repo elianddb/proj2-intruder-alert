@@ -104,6 +104,10 @@ public class Tile {
             return new Location[] {up(), down(), left(), right()};
         }
 
+        public int manhattanDistance(Location location) {
+            return Math.abs(x - location.x) + Math.abs(y - location.y);
+        }
+
         @Override
         public int hashCode() {
             int result = 17; // Arbitrary starting value

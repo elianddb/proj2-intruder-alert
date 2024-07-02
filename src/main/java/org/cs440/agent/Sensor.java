@@ -24,10 +24,6 @@ public class Sensor {
     public Sensor(Agent user, Agent target) {
         this(user, target, DEFAULT_SENSITIVITY);
     }
-    public double getSensitivity() {
-        return sensitivity;
-    }
-    
 
     public boolean sense() {
         // The nearer the bot is to the target, the more likely it is to sense it (beep)
@@ -36,13 +32,13 @@ public class Sensor {
         //     for some constant alpha > 0, alpha = sensitivity
         // If the bot is immediately adjacent to the target, the probability of receiving a beep is 1
 
-        int d = manhattanDistance();
+        int d = user.location().manhattanDistance(target.location());
         double probability = Math.exp((-sensitivity) * (d - 1));
         App.logger.debug("Probability of sensing target: " + probability);
         return Math.random() < probability;
     }
 
-    public int manhattanDistance() {
-        return Math.abs(user.location.x() - target.location.x()) + Math.abs(user.location.y() - target.location.y());
+    public double getSensitivity() {
+        return sensitivity;
     }
 }
