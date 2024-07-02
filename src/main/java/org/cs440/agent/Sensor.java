@@ -35,7 +35,7 @@ public class Sensor {
         int d = user.location().manhattanDistance(target.location());
         double probability = Math.exp((-sensitivity) * (d - 1));
         App.logger.debug("Probability of sensing target: " + probability);
-        return Math.random() < probability;
+        return Math.random() <= probability;
     }
 
     public double getSensitivity() {
