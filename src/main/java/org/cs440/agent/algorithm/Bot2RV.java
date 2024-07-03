@@ -63,7 +63,6 @@ public class Bot2RV implements Algorithm{
             return;
         }
 
-        moveQueue.clear();
         boolean sensorBeeped = bot.getSensor().beeped();
         // Update probability map
         double totalProbability = 0.0;

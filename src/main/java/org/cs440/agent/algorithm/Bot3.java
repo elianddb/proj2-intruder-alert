@@ -1,8 +1,10 @@
 package org.cs440.agent.algorithm;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Stack;
@@ -19,11 +21,14 @@ public class Bot3 implements Algorithm{
 
     private LinkedList<Direction> moveQueue;
     private double probabilityMap[][];
+    private double transitionModel[][][];
     private boolean sense = true;
+
+    private Ship ship;
 
     public Bot3(Ship ship) {
         this.moveQueue = new LinkedList<Direction>();
-
+        this.ship = ship;
         int height = ship.getHeight();
         int width = ship.getWidth();
         // Since the is empty with a bot in it, the probability of a mouse being in any open tile is uniform
@@ -35,11 +40,89 @@ public class Bot3 implements Algorithm{
                     continue;
                 }
                 
-                if (!ship.getTile(j, i).is(Status.BLOCKED)) {
-                    probabilityMap[i][j] = uniformProbability;
+                probabilityMap[i][j] = uniformProbability;
+            }
+        }
+
+        transitionModel = new double[height][width][5]; // 5 for 4 directions + stay
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                if (ship.getTile(j, i).is(Status.BLOCKED)) continue;
+                List<Direction> validMoves = getValidMoves(j, i);
+                double moveProbability = 1.0 / (validMoves.size());
+                for (Direction dir : validMoves) {
+                    transitionModel[i][j][dir.ordinal()] = moveProbability;
                 }
             }
         }
+    }
+
+    private List<Direction> getValidMoves(int x, int y) {
+        List<Direction> validMoves = new ArrayList<>();
+        for (Direction dir : Direction.values()) {
+            int newX = x + dir.dx;
+            int newY = y + dir.dy;
+            if (ship.withinBounds(newX, newY) && !ship.getTile(newX, newY).is(Status.BLOCKED)) {
+                validMoves.add(dir);
+            }
+        }
+        return validMoves;
+    }
+
+    private void normalizeProbabilityMap(double[][] map, double totalProbability) {
+        totalProbability += EPSILON;
+        for (int i = 0; i < ship.getHeight(); i++) {
+            for (int j = 0; j < ship.getWidth(); j++) {
+                if (!ship.getTile(j, i).is(Status.BLOCKED)) {
+                    map[i][j] = (map[i][j] + EPSILON) / totalProbability;
+                }
+            }
+        }
+    }
+
+    private void predict() {
+        double[][] newProbabilityMap = new double[ship.getHeight()][ship.getWidth()];
+        for (int i = 0; i < ship.getHeight(); i++) {
+            for (int j = 0; j < ship.getWidth(); j++) {
+                if (ship.getTile(j, i).is(Status.BLOCKED)) continue;
+                for (Direction dir : Direction.values()) {
+                    int prevX = j - dir.dx;
+                    int prevY = i - dir.dy;
+                    if (ship.withinBounds(prevX, prevY) && !ship.getTile(prevX, prevY).is(Status.BLOCKED)) {
+                        newProbabilityMap[i][j] += probabilityMap[prevY][prevX] * transitionModel[prevY][prevX][dir.ordinal()];
+                    }
+                }
+                // newProbabilityMap[i][j] += probabilityMap[i][j] * transitionModel[i][j][4]; // Staying in place
+            }
+        }
+        
+        probabilityMap = newProbabilityMap;
+    }
+
+    private void update(Bot bot) {
+        boolean sensorBeeped = bot.getSensor().beeped();
+        double[][] newProbabilityMap = new double[ship.getHeight()][ship.getWidth()];
+        double totalProbability = 0.0;
+
+        for (int i = 0; i < ship.getHeight(); i++) {
+            for (int j = 0; j < ship.getWidth(); j++) {
+                if (ship.getTile(j, i).is(Status.BLOCKED) || bot.getLocation().equals(j, i)) {
+                    continue;
+                }
+
+                int manhattanDistance = bot.getLocation().manhattanDistance(j, i);
+                double beepProbability = Math.exp(-bot.getSensor().getSensitivity() * (manhattanDistance - 1));
+                double likelihood = sensorBeeped ? beepProbability : 1 - beepProbability;
+
+                newProbabilityMap[i][j] = probabilityMap[i][j] * likelihood;
+                totalProbability += newProbabilityMap[i][j];
+            }
+        }
+
+        normalizeProbabilityMap(newProbabilityMap, totalProbability);
+        probabilityMap = newProbabilityMap;
+        
+        App.logger.debug("\n" + toString());
     }
 
     @Override
@@ -53,8 +136,8 @@ public class Bot3 implements Algorithm{
                 sb.append(direction.toString() + " ");
             }
             App.logger.debug("Move Queue: {" + sb.toString() + "}");
-            Direction direction = moveQueue.peek();
-            bot.move(moveQueue.poll());
+            Direction direction = moveQueue.poll();
+            bot.move(direction);
             int x = bot.getLocation().x() + direction.dx;
             int y = bot.getLocation().y() + direction.dy;
             App.logger.debug("Attempting to move to: (" + x + ", " + y + ")");
@@ -63,46 +146,9 @@ public class Bot3 implements Algorithm{
             return;
         }
 
-        moveQueue.clear();
-        boolean sensorBeeped = bot.getSensor().beeped();
         // Update probability map
-        double totalProbability = 0.0;
-        int height = bot.getShip().getHeight();
-        int width = bot.getShip().getWidth();
-        double[][] newProbabilityMap = new double[height][width];
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-                if (bot.getShip().getTile(j, i).is(Status.BLOCKED)) {
-                    continue;
-                }
-
-                if (bot.getLocation().equals(j, i)) {
-                    newProbabilityMap[i][j] = 0.0;
-                    continue;
-                }
-
-                int manhattanDistance = bot.getLocation().manhattanDistance(j, i);
-                double beepProbability = Math.exp(-bot.getSensor().getSensitivity() * (manhattanDistance - 1));
-                double likelihood = sensorBeeped ? beepProbability : 1 - beepProbability;
-
-                newProbabilityMap[i][j] = probabilityMap[i][j] * likelihood;
-                totalProbability += newProbabilityMap[i][j];
-            }
-        }
-
-        // Normalize probability map
-        totalProbability += EPSILON; // Adding smoothing constant to total probability; ensures no division by zero
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-                if (bot.getShip().getTile(j, i).is(Status.BLOCKED)) {
-                    continue;
-                }
-                
-                newProbabilityMap[i][j] = (newProbabilityMap[i][j] + EPSILON) / totalProbability; // Adding epsilon before normalization
-            }
-        }
-
-        probabilityMap = newProbabilityMap;
+        predict();
+        update(bot);
 
         sense = false;
         
@@ -121,6 +167,12 @@ public class Bot3 implements Algorithm{
                 if (probabilityMap[i][j] > maxProbability) {
                     maxProbability = probabilityMap[i][j];
                     target = new Location(j, i);
+                } else if (probabilityMap[i][j] == maxProbability) {
+                    // Break ties by selecting the closest target
+                    Location current = new Location(j, i);
+                    if (current.manhattanDistance(bot.getLocation()) < target.manhattanDistance(bot.getLocation())) {
+                        target = current;
+                    }
                 }
             }
         }
@@ -133,7 +185,7 @@ public class Bot3 implements Algorithm{
             Location current = fringe.poll();
             visited.add(current);
             // App.logger.debug("Current: " + current.toString() + " Target: " + target.toString());
-
+            
             if (current.equals(target)) {
                 // Backtrack path
                 while (parent.containsKey(current)) {
