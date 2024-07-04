@@ -32,7 +32,6 @@ public class Driver {
             System.out.println("exit. Exit");
 
             if (input.equals("exit")) {
-                scanner.nextLine();
                 break;
             }
 
@@ -42,17 +41,45 @@ public class Driver {
                 scanner.nextLine();
                 continue;
             } else if (input.equals("2")) {
-                // runBenchmark();
+                runBenchmark();
+                continue;
             } else if (input.equals("debug")) {
                 logger.setLevel(Level.DEBUG);
                 logger.debug("Debugging enabled...");
-            } else {
+            } else if (!input.equals("exit")) {
                 System.out.println("Invalid input. Please try again.");
                 continue;
             }
         }
-
         scanner.close();
+    }
+
+    private static void runBenchmark() {
+        Scanner scanner = new Scanner(System.in);
+        int iterations = 0;
+        while (!input.equals("exit")) {
+            System.out.println("How many iterations would you like to run per alpha value?");
+            System.out.println("Enter the number of iterations: ");
+            input = scanner.nextLine().trim();
+            if (input.equals("exit")) {
+                break;
+            }
+
+            try {
+                iterations = Integer.parseInt(input);
+                if (iterations <= 0) {
+                    System.out.println("Invalid input. Please try again.");
+                    continue;
+                }
+                int threadPoolSize = Runtime.getRuntime().availableProcessors();
+                logger.info("Running benchmark with " + iterations + " iterations and " + threadPoolSize + " threads");
+                SimulationRunner.main(new String[] {String.valueOf(iterations), String.valueOf(threadPoolSize)});
+                break;
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please try again.");
+                continue;
+            }
+        }
     }
 
     private static void runSimulation() throws IOException {
@@ -81,7 +108,7 @@ public class Driver {
             } else if (input.equals("3")) {
                 algorithm = new Bot3(ship);
                 break;
-            } else {
+            } else if (!input.equals("exit")) {
                 System.out.println("Invalid input. Please try again.");
                 continue;
             }
@@ -108,7 +135,7 @@ public class Driver {
             } else if (input.equals("2")) {
                 type = 2;
                 break;
-            } else {
+            } else if (!input.equals("exit")) {
                 System.out.println("Invalid input. Please try again.");
                 continue;
             }
@@ -123,9 +150,9 @@ public class Driver {
             }
 
             if (input.equals("1") || input.equals("2")) {
-                runParams(ship, algorithm, Integer.parseInt(input), type);
+                runParams(ship, algorithm, type, Integer.parseInt(input));
                 break;
-            } else {
+            } else if (!input.equals("exit")) {
                 System.out.println("Invalid input. Please try again.");
                 continue;
             }
@@ -158,7 +185,7 @@ public class Driver {
         }
 
         logger.info("Starting simulation...");
-        simulation.run(75); // Exclude delay to run without drawing frames
+        simulation.run(45); // Exclude delay to run without drawing frames
         //logger.debug("\n" + simulation.toString());
 
         logger.info("Simulation completed in " + simulation.stepsTaken() + " steps");
