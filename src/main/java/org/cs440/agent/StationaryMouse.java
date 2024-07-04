@@ -15,7 +15,6 @@ public class StationaryMouse extends Agent implements Capture {
         if (location.x() == x && location.y() == y) {
             free = false;
             identifier = '@';
-            ship.setTile(location, Status.BLOCKED);
         }
 
         return !free;

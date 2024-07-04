@@ -72,7 +72,6 @@ public class StochasticMouse extends Agent implements Movement, Action, Capture 
         if (location.x() == x && location.y() == y) {
             free = false;
             identifier = '@';
-            ship.setTile(location, Status.BLOCKED);
         }
 
         return !free;

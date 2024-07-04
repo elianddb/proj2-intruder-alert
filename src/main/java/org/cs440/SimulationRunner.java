@@ -30,19 +30,19 @@ import org.cs440.ship.Ship;
 
 public class SimulationRunner {
     private static final Logger logger = Logger.getLogger(SimulationRunner.class.getName());
-    private static final int NUM_SIMULATIONS = 1000;
-    private static final int THREAD_POOL_SIZE = 30; // Adjust thread pool size based on your CPU cores and load
+    private static final int NUM_SIMULATIONS = 100;
+    private static final int THREAD_POOL_SIZE = 40; // Adjust thread pool size based on your CPU cores and load
 
     public static void main(String[] args) {
         int sum;
 
         // Run simulations for Bot3
-        sum = runSimulations(new Bot3Factory(), "Bot3");
-        logger.info("Bot3 Average steps taken: " + sum * 1.0 / NUM_SIMULATIONS);
+        // sum = runSimulations(new Bot3Factory(), "Bot3");
+        // logger.info("Bot3 Average steps taken: " + sum * 1.0 / NUM_SIMULATIONS);
 
         // Run simulations for Bot1RV
-        //sum = runSimulations(new Bot1RVFactory(), "Bot1RV");
-        //logger.info("Bot1RV Average steps taken: " + sum * 1.0 / NUM_SIMULATIONS);
+        sum = runSimulations(new Bot1RVFactory(), "Bot1RV");
+        logger.info("Bot1RV Average steps taken: " + sum * 1.0 / NUM_SIMULATIONS);
 
         // Run simulations for Bot2RV
         //sum = runSimulations(new Bot2RVFactory(), "Bot2RV");
@@ -176,22 +176,29 @@ public class SimulationRunner {
     }
 
     private static class Bot3Factory implements BotFactory {
+        public static int count = 0;
+
         @Override
         public Algorithm createBot(Ship ship) {
+            System.out.println("Bot3Factory count: " + count++);
             return new Bot3(ship);
         }
     }
 
     private static class Bot1RVFactory implements BotFactory {
+        public static int count = 0;
         @Override
         public Algorithm createBot(Ship ship) {
+            System.out.println("Bot1RVFactory count: " + count++);
             return new Bot1RV(ship);
         }
     }
 
     private static class Bot2RVFactory implements BotFactory {
+        public static int count = 0;
         @Override
         public Algorithm createBot(Ship ship) {
+            System.out.println("Bot2RVFactory count: " + count++);
             return new Bot2RV(ship);
         }
     }
