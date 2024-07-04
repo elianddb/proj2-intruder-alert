@@ -83,6 +83,7 @@ public class Bot3 implements Algorithm{
 
     private void predict() {
         double[][] newProbabilityMap = new double[ship.getHeight()][ship.getWidth()];
+        double totalProbability = 0.0;
         for (int i = 0; i < ship.getHeight(); i++) {
             for (int j = 0; j < ship.getWidth(); j++) {
                 if (ship.getTile(j, i).is(Status.BLOCKED)) continue;
@@ -93,9 +94,10 @@ public class Bot3 implements Algorithm{
                         newProbabilityMap[i][j] += probabilityMap[prevY][prevX] * transitionModel[prevY][prevX][dir.ordinal()];
                     }
                 }
+                totalProbability += newProbabilityMap[i][j];
             }
         }
-        
+        normalizeProbabilityMap(newProbabilityMap, totalProbability);
         probabilityMap = newProbabilityMap;
     }
 
@@ -157,7 +159,7 @@ public class Bot3 implements Algorithm{
                         if (ship.getTile(j, i).is(Status.BLOCKED)) {
                             continue;
                         }
-
+                        
                         int manhattanDistance = bot.getLocation().manhattanDistance(j, i);
                         double beepProbability = Math.exp(-bot.getSensor().getSensitivity() * (manhattanDistance - 1));
                         probabilityMap[i][j] *= (1 - beepProbability) * 0.0001;
