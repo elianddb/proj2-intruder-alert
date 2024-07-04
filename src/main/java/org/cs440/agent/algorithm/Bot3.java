@@ -128,10 +128,13 @@ public class Bot3 implements Algorithm{
     @Override
     public void execute(Bot bot) {
         if (!sense) {
-            if (moveQueue.isEmpty() || recalculatePath >= 5) {
+            if (moveQueue.isEmpty() || recalculatePath >= 8) {
                 // moveQueue.clear();
                 planPath(bot);
                 recalculatePath = 0;
+                if (moveQueue.size() > Math.max(ship.getHeight(), ship.getWidth()))
+                    for (int i = 0; i < 10; i++)
+                        moveQueue.pollLast();
             }
             StringBuilder sb = new StringBuilder();
             for (Direction direction : moveQueue) {
@@ -147,6 +150,7 @@ public class Bot3 implements Algorithm{
                 moveQueue.clear();
                 probabilityMap[y][x] = 0.0;
                 // Lower the probability of nearer tiles to bot with beep formula
+                predict();
                 double totalProbability = 0.0;
                 for (int i = 0; i < ship.getHeight(); i++) {
                     for (int j = 0; j < ship.getWidth(); j++) {
