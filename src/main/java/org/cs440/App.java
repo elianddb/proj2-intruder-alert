@@ -20,7 +20,7 @@ public class App {
         StochasticMouse mouse1 = new StochasticMouse('M');
         // StochasticMouse mouse2 = new StochasticMouse('M');
         StationaryMouse mouse2 = new StationaryMouse('M');
-        Bot bot = new Bot('A', new Agent[] {mouse1, mouse2}, 0.1, new Bot3(ship));
+        Bot bot = new Bot('A', new Agent[] {mouse1, mouse2}, 0.1, new Bot1RV(ship));
         
         Simulation simulation = new Simulation(ship);
         simulation.addAgent(bot);
@@ -40,7 +40,7 @@ public class App {
         System.out.println("Press Enter to exit...");
         System.in.read();
 
-        logger.writeTo("App");
         logger.info("Log messages written to file: App.log");
+        logger.writeTo("App");
     }
 }
