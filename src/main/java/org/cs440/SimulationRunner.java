@@ -30,15 +30,15 @@ import org.cs440.ship.Ship;
 
 public class SimulationRunner {
     private static final Logger logger = Logger.getLogger(SimulationRunner.class.getName());
-    private static final int NUM_SIMULATIONS = 100;
+    private static final int NUM_SIMULATIONS = 1000;
     private static final int THREAD_POOL_SIZE = 40; // Adjust thread pool size based on your CPU cores and load
 
     public static void main(String[] args) {
         int sum;
 
         // Run simulations for Bot3
-        sum = runSimulations(new Bot3Factory(), "Bot3");
-        logger.info("Bot3 Average steps taken: " + sum * 1.0 / NUM_SIMULATIONS);
+        //sum = runSimulations(new Bot3Factory(), "Bot3");
+        //logger.info("Bot3 Average steps taken: " + sum * 1.0 / NUM_SIMULATIONS);
 
         // Run simulations for Bot1RV
         // sum = runSimulations(new Bot1RVFactory(), "Bot1RV");
@@ -48,33 +48,33 @@ public class SimulationRunner {
         // sum = runSimulations(new Bot2RVFactory(), "Bot2RV");
         // logger.info("Bot2RV Average steps taken: " + sum * 1.0 / NUM_SIMULATIONS);
         
-        // double[] alphaValues = {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9}; // Example α values
+        double[] alphaValues = {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9}; // Example α values
 
-        // double[] avgMovesBot1 = new double[alphaValues.length];
-        // double[] avgMovesBot2 = new double[alphaValues.length];
-        // double[] avgMovesBot3 = new double[alphaValues.length];
+        double[] avgMovesBot1 = new double[alphaValues.length];
+        double[] avgMovesBot2 = new double[alphaValues.length];
+        double[] avgMovesBot3 = new double[alphaValues.length];
 
-        // for (int i = 0; i < alphaValues.length; i++) {
-        //     double alpha = alphaValues[i];
-        //     avgMovesBot1[i] = simulateBots(new Bot1RVFactory(), alpha);
-        //     logger.info(String.format("Alpha %.2f - Bot1 average moves: %.2f", alpha, avgMovesBot1[i]));
+        for (int i = 0; i < alphaValues.length; i++) {
+            double alpha = alphaValues[i];
+            avgMovesBot1[i] = simulateBots(new Bot1RVFactory(), alpha);
+            logger.info(String.format("Alpha %.2f - Bot1 average moves: %.2f", alpha, avgMovesBot1[i]));
 
-        //     avgMovesBot2[i] = simulateBots(new Bot2RVFactory(), alpha);
-        //     logger.info(String.format("Alpha %.2f - Bot2 average moves: %.2f", alpha, avgMovesBot2[i]));
+            avgMovesBot2[i] = simulateBots(new Bot2RVFactory(), alpha);
+            logger.info(String.format("Alpha %.2f - Bot2 average moves: %.2f", alpha, avgMovesBot2[i]));
 
-        //     avgMovesBot3[i] = simulateBots(new Bot3Factory(), alpha);
-        //     logger.info(String.format("Alpha %.2f - Bot3 average moves: %.2f", alpha, avgMovesBot3[i]));
-        // }
+            avgMovesBot3[i] = simulateBots(new Bot3Factory(), alpha);
+            logger.info(String.format("Alpha %.2f - Bot3 average moves: %.2f", alpha, avgMovesBot3[i]));
+        }
 
-        // Table results = Table.create("Average Moves vs. Alpha")
-        //         .addColumns(
-        //                 DoubleColumn.create("Alpha", alphaValues),
-        //                 DoubleColumn.create("Avg Moves (Bot1)", avgMovesBot1),
-        //                 DoubleColumn.create("Avg Moves (Bot2)", avgMovesBot2),
-        //                 DoubleColumn.create("Avg Moves (Bot3)", avgMovesBot3)
-        //         );
+        Table results = Table.create("Average Moves vs. Alpha")
+                .addColumns(
+                        DoubleColumn.create("Alpha", alphaValues),
+                        DoubleColumn.create("Avg Moves (Bot1)", avgMovesBot1),
+                        DoubleColumn.create("Avg Moves (Bot2)", avgMovesBot2),
+                        DoubleColumn.create("Avg Moves (Bot3)", avgMovesBot3)
+                );
 
-        // plotAverageMoves(results, "Stationary Mouse");
+        plotAverageMoves(results, "Stationary Mouse");
     }
     private static double simulateBots(AlgorithmFactory botFactory, double alpha) {
         ExecutorService executor = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
