@@ -25,9 +25,14 @@ public class Bot3 implements Algorithm{
     private boolean sense = true;
     private int recalculatePath = 0;
 
+    private int consecutiveNoMovement = 0;
+    private Location lastMaxProbabilityLocation;
+
     private Ship ship;
 
     public Bot3(Ship ship) {
+        this.lastMaxProbabilityLocation = null;
+
         this.moveQueue = new LinkedList<Direction>();
         this.ship = ship;
         int height = ship.getHeight();
@@ -127,15 +132,18 @@ public class Bot3 implements Algorithm{
         App.logger.debug("\n" + toString());
     }
 
+    private boolean shouldRecalculatePath() {
+        return recalculatePath >= Math.max(1, 8 - consecutiveNoMovement);
+    }
+
     @Override
     public void execute(Bot bot) {
         if (!sense) {
-            if (moveQueue.isEmpty() || recalculatePath >= 8) {
+            if (moveQueue.isEmpty() || shouldRecalculatePath()) {
                 // moveQueue.clear();
-                if (moveQueue.size() > 70)
-                    moveQueue.clear();
                 planPath(bot);
                 recalculatePath = 0;
+                consecutiveNoMovement = 0;
             }
             StringBuilder sb = new StringBuilder();
             for (Direction direction : moveQueue) {
@@ -177,7 +185,37 @@ public class Bot3 implements Algorithm{
         predict();
         update(bot);
 
+        checkTargetMovement();
+
         sense = false;
+    }
+
+    private Location findMaxProbabilityLocation() {
+        double maxProbability = 0.0;
+        Location maxLocation = null;
+        for (int i = 0; i < ship.getHeight(); i++) {
+            for (int j = 0; j < ship.getWidth(); j++) {
+                if (ship.getTile(j, i).is(Status.BLOCKED)) {
+                    continue;
+                }
+                
+                if (probabilityMap[i][j] > maxProbability) {
+                    maxProbability = probabilityMap[i][j];
+                    maxLocation = new Location(j, i);
+                }
+            }
+        }
+        return maxLocation;
+    }
+
+    private void checkTargetMovement() {
+        Location currentMaxProbabilityLocation = findMaxProbabilityLocation();
+        if (lastMaxProbabilityLocation != null && currentMaxProbabilityLocation.equals(lastMaxProbabilityLocation)) {
+            consecutiveNoMovement++;
+        } else {
+            consecutiveNoMovement = 0;
+        }
+        lastMaxProbabilityLocation = currentMaxProbabilityLocation;
     }
 
     public void planPath(Bot bot) {
