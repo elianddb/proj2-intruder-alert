@@ -132,11 +132,10 @@ public class Bot3 implements Algorithm{
         if (!sense) {
             if (moveQueue.isEmpty() || recalculatePath >= 8) {
                 // moveQueue.clear();
+                if (moveQueue.size() > 70)
+                    moveQueue.clear();
                 planPath(bot);
                 recalculatePath = 0;
-                if (moveQueue.size() > Math.max(ship.getHeight(), ship.getWidth()))
-                    for (int i = 0; i < 8; i++)
-                        moveQueue.pollLast();
             }
             StringBuilder sb = new StringBuilder();
             for (Direction direction : moveQueue) {
