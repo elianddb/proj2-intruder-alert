@@ -49,7 +49,7 @@ public class Bot1RV implements Algorithm{
             int x = bot.getLocation().x() + direction.dx;
             int y = bot.getLocation().y() + direction.dy;
             App.logger.debug("Attempting to move to: (" + x + ", " + y + ")");
-            bot.getTarget().capture(x, y);
+            bot.attemptCapture(x, y);
             return;
         }
 

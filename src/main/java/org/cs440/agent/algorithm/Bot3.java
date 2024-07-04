@@ -140,8 +140,38 @@ public class Bot3 implements Algorithm{
             bot.move(direction);
             int x = bot.getLocation().x() + direction.dx;
             int y = bot.getLocation().y() + direction.dy;
-            App.logger.debug("Attempting to move to: (" + x + ", " + y + ")");
-            bot.getTarget().capture(x, y);
+            App.logger.info("Attempting to move to: (" + x + ", " + y + ")");
+            if (bot.attemptCapture(x, y)) {
+                // Update transition map with new available moves
+                transitionModel = new double[ship.getHeight()][ship.getWidth()][5];
+                for (int i = 0; i < ship.getHeight(); i++) {
+                    for (int j = 0; j < ship.getWidth(); j++) {
+                        if (ship.getTile(j, i).is(Status.BLOCKED)) continue;
+                        List<Direction> validMoves = getValidMoves(j, i);
+                        double moveProbability = 1.0 / (validMoves.size());
+                        for (Direction dir : validMoves) {
+                            transitionModel[i][j][dir.ordinal()] = moveProbability;
+                        }
+                    }
+                }
+
+                // Weight existing probability map with new uniform distribution (low)
+                // Also normalize
+                double uniformProbability = 1.0 / (ship.numOfOpen() + 1);
+                double totalProbability = 0.0;
+                for (int i = 0; i < ship.getHeight(); i++) {
+                    for (int j = 0; j < ship.getWidth(); j++) {
+                        if (ship.getTile(j, i).is(Status.BLOCKED)) {
+                            continue;
+                        }
+                        
+                        probabilityMap[i][j] = probabilityMap[i][j] * 0.5 + uniformProbability * 0.5;
+                        totalProbability += probabilityMap[i][j];
+                    }
+                }
+
+                normalizeProbabilityMap(probabilityMap, totalProbability);
+            }
             sense = true;
             return;
         }

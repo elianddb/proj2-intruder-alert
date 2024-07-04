@@ -46,6 +46,10 @@ public class Tile {
         this.type = type;
     }
 
+    public void set(Status status) {
+        type.status = status;
+    }
+
     @Override
     public String toString() {
         return String.format("%c(%d, %d): %s", type.identifier, location.x, location.y, type.status);
@@ -59,7 +63,7 @@ public class Tile {
 
     public static class Type {
         protected final char identifier;
-        protected final Status status;
+        protected Status status;
 
         public Type(char identifier, Status status) {
             this.identifier = identifier;

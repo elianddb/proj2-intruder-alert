@@ -45,8 +45,10 @@ public class Log {
 
     public synchronized void writeTo(String filename) {
         try (FileWriter writer = new FileWriter(filename + ".log")) {
-            for (String logMessage : logMessages) {
-                writer.write(logMessage + "\n");
+            synchronized (logMessages) {
+                for (String logMessage : logMessages) {
+                    writer.write(logMessage + "\n");
+                }
             }
         } catch (IOException e) {
             error("Failed to write log messages to file: " + e.getMessage());

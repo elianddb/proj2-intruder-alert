@@ -3,6 +3,7 @@ package org.cs440;
 import java.io.IOException;
 
 import org.cs440.Log.Level;
+import org.cs440.agent.Agent;
 import org.cs440.agent.Bot;
 import org.cs440.agent.StationaryMouse;
 import org.cs440.agent.StochasticMouse;
@@ -13,16 +14,18 @@ public class App {
     public static final Log logger = new Log("App");
 
     public static void main(String[] args) throws IOException {
-        logger.setLevel(Level.DEBUG);
+        logger.setLevel(Level.INFO);
         
         Ship ship = new Ship(40, 40);
-        StochasticMouse mouse = new StochasticMouse('M');
+        StochasticMouse mouse1 = new StochasticMouse('M');
+        StochasticMouse mouse2 = new StochasticMouse('M');
         // StationaryMouse mouse = new StationaryMouse('M');
-        Bot bot = new Bot('A', mouse, new Bot3(ship));
+        Bot bot = new Bot('A', new Agent[] {mouse1, mouse2}, 0.1, new Bot3(ship));
         
         Simulation simulation = new Simulation(ship);
         simulation.addAgent(bot);
-        simulation.addAgent(mouse);
+        simulation.addAgent(mouse1);
+        simulation.addAgent(mouse2);
         
         if (logger.is(Level.DEBUG)) { // Delay for human to read initial state logs
             logger.debug("Debugging is enabled...");

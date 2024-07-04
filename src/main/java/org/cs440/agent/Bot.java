@@ -19,7 +19,7 @@ import org.cs440.ship.Tile.Status;
 
 public class Bot extends Agent implements Movement, Action  {
     protected Sensor sensor;
-    private Capture target;
+    private Capture[] targets;
     private double[][] probabilityMap;
     private final static int GRID_SIZE = 40;
     private Queue<Direction> moveQueue = new LinkedList<>();
@@ -29,16 +29,37 @@ public class Bot extends Agent implements Movement, Action  {
     private Algorithm algorithm;
     private boolean botMove = false;
 
+    public Bot(char identifier, Agent[] targets, double sensorSensitivity, Algorithm algorithm) {
+        super(identifier);
+        this.sensor = new Sensor(this, targets, sensorSensitivity);
+        this.probabilityMap = new double[GRID_SIZE][GRID_SIZE];
+        this.algorithm = algorithm;
+        this.targets = new Capture[targets.length];
+        for (int i = 0; i < targets.length; i++) {
+            this.targets[i] = (Capture) targets[i];
+        }
+    }
+
     public Bot(char identifier, Agent target, double sensorSensitivity, Algorithm algorithm) {
         super(identifier);
         this.sensor = new Sensor(this, target, sensorSensitivity);
-        this.target = (Capture) target;
+        this.targets = new Capture[] { (Capture) target };
         this.probabilityMap = new double[GRID_SIZE][GRID_SIZE];
         this.algorithm = algorithm;
     }
 
     public Bot(char identifier, Agent target, Algorithm algorithm) {
         this(identifier, target, 0.1, algorithm);
+    }
+
+    public boolean attemptCapture(int x, int y) {
+        for (Capture target : targets) {
+            if (!target.isFree()) continue;
+            if (target.capture(x, y)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -74,7 +95,12 @@ public class Bot extends Agent implements Movement, Action  {
 
     @Override
     public boolean closed() {
-        return !target.isFree();
+        for (Capture target : targets) {
+            if (target.isFree()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public void bot1() {
@@ -95,9 +121,9 @@ public class Bot extends Agent implements Movement, Action  {
             int x = location.x() + direction.dx;
             int y = location.y() + direction.dy;
             move(direction);
-            if (target.capture(x, y)) {
+            if (attemptCapture(x, y)) {
                 App.logger.debug("Bot " + identifier + " encountered target at location " + location);
-                App.logger.debug("Bot " + identifier + " killed target " + ((Agent)target).getIdentifier());
+                // App.logger.debug("Bot " + identifier + " killed target " + ((Agent)targets).getIdentifier());
                 App.logger.debug("Killed target in " + moveCount + " moves and " + senseCount + " senses for a total of " + (moveCount + senseCount) + " actions.");
                 return; // Didn't move target was in way
             }
@@ -128,9 +154,9 @@ public class Bot extends Agent implements Movement, Action  {
             int x = location.x() + direction.dx;
             int y = location.y() + direction.dy;
             move(direction);
-            if (target.capture(x, y)) {
+            if (attemptCapture(x, y)) {
                 App.logger.debug("Bot " + identifier + " encountered target at location " + location);
-                App.logger.debug("Bot " + identifier + " killed target " + ((Agent)target).getIdentifier());
+                // App.logger.debug("Bot " + identifier + " killed target " + ((Agent)targets).getIdentifier());
                 App.logger.debug("Killed target in " + moveCount + " moves and " + senseCount + " senses for a total of " + (moveCount + senseCount) + " actions.");
                 return; // Didn't move target was in way
             }
@@ -295,8 +321,8 @@ public class Bot extends Agent implements Movement, Action  {
         return sensor;
     }
 
-    public Capture getTarget() {
-        return target;
+    public Capture[] getTargets() {
+        return targets;
     }
 
     @Override
