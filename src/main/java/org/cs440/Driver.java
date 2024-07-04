@@ -16,7 +16,7 @@ import org.cs440.ship.Ship;
 
 public class Driver {
     private static final Log logger = new Log("Driver");
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         System.out.println("Welcome to bot vs. mouse simulation!");
         System.out.println("This simulation will run a bot algorithm against a mouse algorithm.");
         System.out.println("Type 'exit' to exit this interface at any time.");
@@ -32,7 +32,7 @@ public class Driver {
             if (input.equals("1")) {
                 runSimulation();
             } else if (input.equals("2")) {
-                runBenchmark();
+                // runBenchmark();
             }
         }
         // Options on which bot to run
