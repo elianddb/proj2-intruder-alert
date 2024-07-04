@@ -128,8 +128,8 @@ public class Bot3 implements Algorithm{
     @Override
     public void execute(Bot bot) {
         if (!sense) {
-            if (moveQueue.isEmpty() || recalculatePath >= Math.max(ship.getHeight(), ship.getWidth()) / 1.6) {
-                moveQueue.clear();
+            if (moveQueue.isEmpty() || recalculatePath >= 5) {
+                // moveQueue.clear();
                 planPath(bot);
                 recalculatePath = 0;
             }
@@ -144,8 +144,8 @@ public class Bot3 implements Algorithm{
             int y = bot.getLocation().y() + direction.dy;
             App.logger.debug("Attempting to move to: (" + x + ", " + y + ")");
             if (bot.attemptCapture(x, y)) {
-                probabilityMap[y][x] = 0.0;
-                // Lower the probability of nearer tiles to bot with beep formula
+                // probabilityMap[y][x] = 0.0;
+                // // Lower the probability of nearer tiles to bot with beep formula
                 // double totalProbability = 0.0;
                 // for (int i = 0; i < ship.getHeight(); i++) {
                 //     for (int j = 0; j < ship.getWidth(); j++) {
@@ -155,7 +155,7 @@ public class Bot3 implements Algorithm{
 
                 //         int manhattanDistance = bot.getLocation().manhattanDistance(j, i);
                 //         double beepProbability = Math.exp(-bot.getSensor().getSensitivity() * (manhattanDistance - 1));
-                //         probabilityMap[i][j] *= 1 - beepProbability * 0.05;
+                //         probabilityMap[i][j] *= beepProbability * 0.001;
                 //         totalProbability += probabilityMap[i][j];
                 //     }
                 // }
