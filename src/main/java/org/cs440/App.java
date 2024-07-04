@@ -20,7 +20,7 @@ public class App {
         StochasticMouse mouse1 = new StochasticMouse('M');
         // StochasticMouse mouse2 = new StochasticMouse('M');
         StationaryMouse mouse2 = new StationaryMouse('M');
-        Bot bot = new Bot('A', new Agent[] {mouse1, mouse2}, 0.1, new Bot1RV(ship));
+        Bot bot = new Bot('A', new Agent[] {mouse1, mouse2}, 0.1, new Bot3(ship));
         
         Simulation simulation = new Simulation(ship);
         simulation.addAgent(bot);

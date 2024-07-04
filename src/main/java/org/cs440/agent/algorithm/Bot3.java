@@ -128,7 +128,7 @@ public class Bot3 implements Algorithm{
     @Override
     public void execute(Bot bot) {
         if (!sense) {
-            if (moveQueue.isEmpty() || recalculatePath >= 8) {
+            if (moveQueue.isEmpty() || recalculatePath >= Math.max(ship.getHeight(), ship.getWidth()) / 1.6) {
                 moveQueue.clear();
                 planPath(bot);
                 recalculatePath = 0;
@@ -146,21 +146,21 @@ public class Bot3 implements Algorithm{
             if (bot.attemptCapture(x, y)) {
                 probabilityMap[y][x] = 0.0;
                 // Lower the probability of nearer tiles to bot with beep formula
-                double totalProbability = 0.0;
-                for (int i = 0; i < ship.getHeight(); i++) {
-                    for (int j = 0; j < ship.getWidth(); j++) {
-                        if (ship.getTile(j, i).is(Status.BLOCKED)) {
-                            continue;
-                        }
+                // double totalProbability = 0.0;
+                // for (int i = 0; i < ship.getHeight(); i++) {
+                //     for (int j = 0; j < ship.getWidth(); j++) {
+                //         if (ship.getTile(j, i).is(Status.BLOCKED)) {
+                //             continue;
+                //         }
 
-                        int manhattanDistance = bot.getLocation().manhattanDistance(j, i);
-                        double beepProbability = Math.exp(-bot.getSensor().getSensitivity() * (manhattanDistance - 1));
-                        probabilityMap[i][j] *= 1 - beepProbability * 0.5;
-                        totalProbability += probabilityMap[i][j];
-                    }
-                }
+                //         int manhattanDistance = bot.getLocation().manhattanDistance(j, i);
+                //         double beepProbability = Math.exp(-bot.getSensor().getSensitivity() * (manhattanDistance - 1));
+                //         probabilityMap[i][j] *= 1 - beepProbability * 0.05;
+                //         totalProbability += probabilityMap[i][j];
+                //     }
+                // }
 
-                normalizeProbabilityMap(probabilityMap, totalProbability);
+                // normalizeProbabilityMap(probabilityMap, totalProbability);
             }
             sense = true;
             ++recalculatePath;
