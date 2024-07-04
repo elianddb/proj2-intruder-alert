@@ -161,8 +161,8 @@ public class SimulationRunner {
         @Override
         public Integer call() {
             Ship ship = new Ship(40, 40);
-            //StochasticMouse mouse = new StochasticMouse('M');
-            StationaryMouse mouse = new StationaryMouse('M');
+            StochasticMouse mouse = new StochasticMouse('M');
+            // StationaryMouse mouse = new StationaryMouse('M');
             Bot bot = new Bot('B', mouse, algoFactory.createAlgorithm(ship));
             Simulation simulation = new Simulation(ship);
             simulation.addAgent(bot);
