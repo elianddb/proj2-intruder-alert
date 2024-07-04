@@ -23,6 +23,7 @@ public class Bot3 implements Algorithm{
     private double probabilityMap[][];
     private double transitionModel[][][];
     private boolean sense = true;
+    private int recalculatePath = 0;
 
     private Ship ship;
 
@@ -62,7 +63,7 @@ public class Bot3 implements Algorithm{
         for (Direction dir : Direction.values()) {
             int newX = x + dir.dx;
             int newY = y + dir.dy;
-            if (ship.withinBounds(newX, newY) && !ship.getTile(newX, newY).is(Status.BLOCKED)) {
+            if (ship.withinBounds(newX, newY) && ship.getTile(newX, newY).is(Status.OPEN)) {
                 validMoves.add(dir);
             }
         }
@@ -92,7 +93,6 @@ public class Bot3 implements Algorithm{
                         newProbabilityMap[i][j] += probabilityMap[prevY][prevX] * transitionModel[prevY][prevX][dir.ordinal()];
                     }
                 }
-                // newProbabilityMap[i][j] += probabilityMap[i][j] * transitionModel[i][j][4]; // Staying in place
             }
         }
         
@@ -119,7 +119,7 @@ public class Bot3 implements Algorithm{
             }
         }
 
-        normalizeProbabilityMap(newProbabilityMap, totalProbability);
+        normalizeProbabilityMap(newProbabilityMap, totalProbability + EPSILON);
         probabilityMap = newProbabilityMap;
         
         App.logger.debug("\n" + toString());
@@ -128,8 +128,9 @@ public class Bot3 implements Algorithm{
     @Override
     public void execute(Bot bot) {
         if (!sense) {
-            if (moveQueue.isEmpty()) {
+            if (moveQueue.isEmpty() || recalculatePath >= 8) {
                 planPath(bot);
+                recalculatePath = 0;
             }
             StringBuilder sb = new StringBuilder();
             for (Direction direction : moveQueue) {
@@ -144,6 +145,7 @@ public class Bot3 implements Algorithm{
             if (bot.attemptCapture(x, y)) {
             }
             sense = true;
+            ++recalculatePath;
             return;
         }
 
@@ -152,8 +154,6 @@ public class Bot3 implements Algorithm{
         update(bot);
 
         sense = false;
-        
-        App.logger.debug("\n" + toString());
     }
 
     public void planPath(Bot bot) {
@@ -168,12 +168,6 @@ public class Bot3 implements Algorithm{
                 if (probabilityMap[i][j] > maxProbability) {
                     maxProbability = probabilityMap[i][j];
                     target = new Location(j, i);
-                } else if (probabilityMap[i][j] == maxProbability) {
-                    // Break ties by selecting the closest target
-                    Location current = new Location(j, i);
-                    if (current.manhattanDistance(bot.getLocation()) < target.manhattanDistance(bot.getLocation())) {
-                        target = current;
-                    }
                 }
             }
         }
