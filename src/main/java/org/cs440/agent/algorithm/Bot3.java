@@ -140,7 +140,7 @@ public class Bot3 implements Algorithm{
             bot.move(direction);
             int x = bot.getLocation().x() + direction.dx;
             int y = bot.getLocation().y() + direction.dy;
-            App.logger.info("Attempting to move to: (" + x + ", " + y + ")");
+            App.logger.debug("Attempting to move to: (" + x + ", " + y + ")");
             if (bot.attemptCapture(x, y)) {
                 // Update transition map with new available moves
                 transitionModel = new double[ship.getHeight()][ship.getWidth()][5];
