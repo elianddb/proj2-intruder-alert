@@ -311,8 +311,7 @@ public class Bot extends Agent implements Movement, Action  {
                     probabilityMap[i][j] = initialProbability;
                 } else {
                     probabilityMap[i][j] = 0;
-                }   
-
+                }
             }
         }
     }
