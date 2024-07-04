@@ -133,7 +133,7 @@ public class Bot3 implements Algorithm{
     }
 
     private boolean shouldRecalculatePath() {
-        return recalculatePath >= Math.max(1, 8 - consecutiveNoMovement);
+        return recalculatePath >= Math.max(1, 5 - consecutiveNoMovement);
     }
 
     @Override
