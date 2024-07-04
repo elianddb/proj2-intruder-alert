@@ -16,9 +16,10 @@ import org.cs440.ship.Ship;
 
 public class Driver {
     private static final Log logger = new Log("Driver");
+    
     public static void main(String[] args) throws IOException {
-        System.out.println("Welcome to bot vs. mouse simulation!");
-        System.out.println("This simulation will run a bot algorithm against a mouse algorithm.");
+        System.out.println("Welcome to the Bot Vs. Mice simulation!");
+        System.out.println("This simulation will run a bot algorithm to capture mice based on probability.");
         System.out.println("Type 'exit' to exit this interface at any time.");
         System.out.println("Here are you're following options: ");
         String input = "";
@@ -26,6 +27,10 @@ public class Driver {
             System.out.println("1. Run simulation");
             System.out.println("2. Run benchmark");
             System.out.println("exit. Exit");
+
+            if (input.equals("exit")) {
+                break;
+            }
 
             Scanner scanner = new Scanner(System.in);
             input = scanner.nextLine();
@@ -35,16 +40,6 @@ public class Driver {
                 // runBenchmark();
             }
         }
-        // Options on which bot to run
-        System.out.println("Which bot algorithm would you like to run?");
-        System.out.println("1. Bot1RV");
-        System.out.println("2. Bot2RV");
-        System.out.println("3. Bot3");
-        // Take user input
-        System.out.println("Enter the number of the bot you would like to run: ");
-        Scanner scanner = new Scanner(System.in);
-        int botChoice = scanner.nextInt();
-        Algorithm algo = null;
     }
 
     private static void runSimulation() throws IOException {
@@ -64,6 +59,7 @@ public class Driver {
             if (input.equals("exit")) {
                 break;
             }
+
             if (input.equals("1")) {
                 algorithm = new Bot1RV(ship);
                 break;
@@ -72,6 +68,33 @@ public class Driver {
                 break;
             } else if (input.equals("3")) {
                 algorithm = new Bot3(ship);
+                break;
+            } else {
+                System.out.println("Invalid input. Please try again.");
+                continue;
+            }
+        }
+
+        int type = 0;
+        while (!input.equals("exit")) {
+            System.out.println("What type of mice would you like to run?");
+            System.out.println("1. Stochastic Mouse");
+            System.out.println("2. Stationary Mouse");
+
+            System.out.println("Enter the number of the mice you would like to run: ");
+            Scanner scanner = new Scanner(System.in);
+            input = scanner.nextLine().trim();
+
+            if (input.equals("exit")) {
+                return;
+            }
+
+            
+            if (input.equals("1")) {
+                type = 1;
+                break;
+            } else if (input.equals("2")) {
+                type = 2;
                 break;
             } else {
                 System.out.println("Invalid input. Please try again.");
@@ -89,7 +112,7 @@ public class Driver {
             }
             int noOfMice = scanner.nextInt();
             if (input.equals("1") || input.equals("2")) {
-                runBot(ship, algorithm, noOfMice);
+                runParams(ship, algorithm, noOfMice);
                 break;
             } else {
                 System.out.println("Invalid input. Please try again.");
@@ -98,7 +121,11 @@ public class Driver {
         }
     }
 
-    public static void runBot(Ship ship, Algorithm algo, int noOfMice) throws IOException {
+    public static void runParams(Ship ship, Algorithm algo, int noOfMice, int type) throws IOException {
+        Agent[] mice = new Agent[noOfMice];
+        for (int i = 0; i < noOfMice; i++) {
+            mice[i] = new StochasticMouse('M');
+        }
         StochasticMouse mouse1 = new StochasticMouse('M');
         StochasticMouse mouse2 = new StochasticMouse('M');
         Bot bot = new Bot('A', new Agent[] {mouse1, mouse2}, 0.1, algo);
