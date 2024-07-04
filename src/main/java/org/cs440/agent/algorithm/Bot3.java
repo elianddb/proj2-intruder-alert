@@ -133,7 +133,7 @@ public class Bot3 implements Algorithm{
                 planPath(bot);
                 recalculatePath = 0;
                 if (moveQueue.size() > Math.max(ship.getHeight(), ship.getWidth()))
-                    for (int i = 0; i < 10; i++)
+                    for (int i = 0; i < 8; i++)
                         moveQueue.pollLast();
             }
             StringBuilder sb = new StringBuilder();
