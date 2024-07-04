@@ -3,9 +3,11 @@ package org.cs440;
 import java.io.IOException;
 import java.util.Scanner;
 
+import org.apache.commons.math3.stat.StatUtils;
 import org.cs440.Log.Level;
 import org.cs440.agent.Agent;
 import org.cs440.agent.Bot;
+import org.cs440.agent.StationaryMouse;
 import org.cs440.agent.StochasticMouse;
 import org.cs440.agent.algorithm.Algorithm;
 import org.cs440.agent.algorithm.Bot1;
@@ -16,36 +18,47 @@ import org.cs440.ship.Ship;
 
 public class Driver {
     private static final Log logger = new Log("Driver");
+    private static String input = "";
     
     public static void main(String[] args) throws IOException {
         System.out.println("Welcome to the Bot Vs. Mice simulation!");
         System.out.println("This simulation will run a bot algorithm to capture mice based on probability.");
         System.out.println("Type 'exit' to exit this interface at any time.");
         System.out.println("Here are you're following options: ");
-        String input = "";
+        Scanner scanner = new Scanner(System.in);
         while (!input.equals("exit")) {
             System.out.println("1. Run simulation");
             System.out.println("2. Run benchmark");
             System.out.println("exit. Exit");
 
             if (input.equals("exit")) {
+                scanner.nextLine();
                 break;
             }
 
-            Scanner scanner = new Scanner(System.in);
             input = scanner.nextLine();
             if (input.equals("1")) {
                 runSimulation();
+                scanner.nextLine();
+                continue;
             } else if (input.equals("2")) {
                 // runBenchmark();
+            } else if (input.equals("debug")) {
+                logger.setLevel(Level.DEBUG);
+                logger.debug("Debugging enabled...");
+            } else {
+                System.out.println("Invalid input. Please try again.");
+                continue;
             }
         }
+
+        scanner.close();
     }
 
     private static void runSimulation() throws IOException {
-        String input = "";
         Ship ship = new Ship(40, 40);
         Algorithm algorithm = null;
+        Scanner scanner = new Scanner(System.in);
         while (!input.equals("exit")) {
             System.out.println("Which bot algorithm would you like to run?");
             System.out.println("1. Bot1RV");
@@ -53,7 +66,6 @@ public class Driver {
             System.out.println("3. Bot3");
 
             System.out.println("Enter the number of the bot you would like to run: ");
-            Scanner scanner = new Scanner(System.in);
             input = scanner.nextLine().trim();
 
             if (input.equals("exit")) {
@@ -82,10 +94,10 @@ public class Driver {
             System.out.println("2. Stationary Mouse");
 
             System.out.println("Enter the number of the mice you would like to run: ");
-            Scanner scanner = new Scanner(System.in);
             input = scanner.nextLine().trim();
 
             if (input.equals("exit")) {
+                scanner.close();
                 return;
             }
 
@@ -105,14 +117,13 @@ public class Driver {
         while (!input.equals("exit")) {
             System.out.println("How many mice would you like to run?");
             System.out.println("Enter the number of mice you would like to run: ");
-            Scanner scanner = new Scanner(System.in);
             input = scanner.nextLine().trim();
             if (input.equals("exit")) {
                 break;
             }
-            int noOfMice = scanner.nextInt();
+
             if (input.equals("1") || input.equals("2")) {
-                runParams(ship, algorithm, noOfMice);
+                runParams(ship, algorithm, Integer.parseInt(input), type);
                 break;
             } else {
                 System.out.println("Invalid input. Please try again.");
@@ -121,19 +132,24 @@ public class Driver {
         }
     }
 
-    public static void runParams(Ship ship, Algorithm algo, int noOfMice, int type) throws IOException {
+    public static void runParams(Ship ship, Algorithm algo, int mouseType, int noOfMice) throws IOException {
+        logger.info("Running simulation with " + noOfMice + " mice and " + algo.getClass().getSimpleName() + " algorithm");
         Agent[] mice = new Agent[noOfMice];
         for (int i = 0; i < noOfMice; i++) {
-            mice[i] = new StochasticMouse('M');
+            if (mouseType == 1) {
+                mice[i] = new StochasticMouse('M');
+            } else if (mouseType == 2) {
+                mice[i] = new StationaryMouse('M');
+            }
         }
-        StochasticMouse mouse1 = new StochasticMouse('M');
-        StochasticMouse mouse2 = new StochasticMouse('M');
-        Bot bot = new Bot('A', new Agent[] {mouse1, mouse2}, 0.1, algo);
+        
+        Bot bot = new Bot('A', mice, 0.1, algo);
         
         Simulation simulation = new Simulation(ship);
         simulation.addAgent(bot);
-        simulation.addAgent(mouse1);
-        simulation.addAgent(mouse2);
+        for (Agent mouse : mice) {
+            simulation.addAgent(mouse);
+        }
         
         if (logger.is(Level.DEBUG)) { // Delay for human to read initial state logs
             logger.debug("Debugging is enabled...");
@@ -141,14 +157,15 @@ public class Driver {
             System.in.read();
         }
 
-        simulation.run(6); // Exclude delay to run without drawing frames
+        logger.info("Starting simulation...");
+        simulation.run(75); // Exclude delay to run without drawing frames
         //logger.debug("\n" + simulation.toString());
 
         logger.info("Simulation completed in " + simulation.stepsTaken() + " steps");
         System.out.println("Press Enter to exit...");
         System.in.read();
 
-        logger.writeTo("App");
-        logger.info("Log messages written to file: App.log");
+        logger.writeTo("Driver");
+        logger.info("Log messages written to file: Driver.log");
     }
 }
