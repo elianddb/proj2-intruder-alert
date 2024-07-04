@@ -140,6 +140,7 @@ public class Bot3 implements Algorithm{
     public void execute(Bot bot) {
         if (!sense) {
             if (moveQueue.isEmpty() || shouldRecalculatePath()) {
+                if (moveQueue.size() > 150) moveQueue.clear();
                 // moveQueue.clear();
                 planPath(bot);
                 recalculatePath = 0;
@@ -159,7 +160,6 @@ public class Bot3 implements Algorithm{
                 moveQueue.clear();
                 probabilityMap[y][x] = 0.0;
                 // Lower the probability of nearer tiles to bot with beep formula
-                predict();
                 double totalProbability = 0.0;
                 for (int i = 0; i < ship.getHeight(); i++) {
                     for (int j = 0; j < ship.getWidth(); j++) {
@@ -173,6 +173,7 @@ public class Bot3 implements Algorithm{
                         totalProbability += probabilityMap[i][j];
                     }
                 }
+                predict();
 
                 normalizeProbabilityMap(probabilityMap, totalProbability);
             }

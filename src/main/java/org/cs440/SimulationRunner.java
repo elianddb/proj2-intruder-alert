@@ -30,11 +30,15 @@ import org.cs440.ship.Ship;
 
 public class SimulationRunner {
     private static final Logger logger = Logger.getLogger(SimulationRunner.class.getName());
-    private static final int NUM_SIMULATIONS = 1000;
-    private static final int THREAD_POOL_SIZE = 16; // Adjust thread pool size based on your CPU cores and load
+    private static int numSimulations = 1000;
+    private static int threadPoolSize = 16; // Adjust thread pool size based on your CPU cores and load
 
     public static void main(String[] args) {
-        int sum;
+        if (args.length >= 2) {
+            numSimulations = Integer.parseInt(args[0]);
+            threadPoolSize = Integer.parseInt(args[1]);
+        }
+        // int sum;
 
         // Run simulations for Bot3
         //sum = runSimulations(new Bot3Factory(), "Bot3");
@@ -77,10 +81,10 @@ public class SimulationRunner {
         plotAverageMoves(results, "Stationary Mouse");
     }
     private static double simulateBots(AlgorithmFactory botFactory, double alpha) {
-        ExecutorService executor = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
+        ExecutorService executor = Executors.newFixedThreadPool(threadPoolSize);
         List<Future<Integer>> futures = new ArrayList<>();
 
-        for (int i = 0; i < NUM_SIMULATIONS; i++) {
+        for (int i = 0; i < numSimulations; i++) {
             futures.add(executor.submit(new SimulationTask(botFactory)));
         }
 
@@ -97,7 +101,7 @@ public class SimulationRunner {
 
         executor.shutdown();
 
-        return sum * 1.0 / NUM_SIMULATIONS;
+        return sum * 1.0 / numSimulations;
     }
     private static void plotAverageMoves(Table results, String mouseType) {
         double[] alphaValues = results.doubleColumn("Alpha").asDoubleArray();
@@ -128,14 +132,15 @@ public class SimulationRunner {
 
         Figure figure = new Figure(layout, bot1Trace, bot2Trace, bot3Trace);
         Plot.show(figure);
+        return;
     }
  
     private static int runSimulations(AlgorithmFactory algoFactory, String botName) {
         int sum = 0;
-        ExecutorService executor = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
+        ExecutorService executor = Executors.newFixedThreadPool(threadPoolSize);
         List<Future<Integer>> futures = new ArrayList<>();
 
-        for (int i = 0; i < NUM_SIMULATIONS; i++) {
+        for (int i = 0; i < numSimulations; i++) {
             futures.add(executor.submit(new SimulationTask(algoFactory)));
         }
 
