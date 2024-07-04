@@ -31,7 +31,7 @@ import org.cs440.ship.Ship;
 public class SimulationRunner {
     private static final Logger logger = Logger.getLogger(SimulationRunner.class.getName());
     private static final int NUM_SIMULATIONS = 1000;
-    private static final int THREAD_POOL_SIZE = 40; // Adjust thread pool size based on your CPU cores and load
+    private static final int THREAD_POOL_SIZE = 16; // Adjust thread pool size based on your CPU cores and load
 
     public static void main(String[] args) {
         int sum;

@@ -219,20 +219,7 @@ public class Bot3 implements Algorithm{
     }
 
     public void planPath(Bot bot) {
-        double maxProbability = 0.0;
-        Location target = bot.getLocation();
-        for (int i = 0; i < bot.getShip().getHeight(); i++) {
-            for (int j = 0; j < bot.getShip().getWidth(); j++) {
-                if (bot.getShip().getTile(j, i).is(Status.BLOCKED)) {
-                    continue;
-                }
-                
-                if (probabilityMap[i][j] > maxProbability) {
-                    maxProbability = probabilityMap[i][j];
-                    target = new Location(j, i);
-                }
-            }
-        }
+        Location target = findMaxProbabilityLocation();
 
         Queue<Location> fringe = new LinkedList<>();
         HashSet<Location> visited = new HashSet<>();
