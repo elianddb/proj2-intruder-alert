@@ -25,6 +25,7 @@ public class Bot3 implements Algorithm{
     private boolean sense = true;
     private int recalculatePath = 0;
 
+    private static final int MAX_CONSECUTIVE_NO_MOVEMENT = 8;
     private int consecutiveNoMovement = 0;
     private Location lastMaxProbabilityLocation;
 
@@ -57,6 +58,7 @@ public class Bot3 implements Algorithm{
                 List<Direction> validMoves = getValidMoves(j, i);
                 double moveProbability = 1.0 / (validMoves.size());
                 for (Direction dir : validMoves) {
+                    // adjust with alpha val worth
                     transitionModel[i][j][dir.ordinal()] = moveProbability;
                 }
             }
@@ -86,9 +88,9 @@ public class Bot3 implements Algorithm{
         }
     }
 
-    private void predict() {
+    private void predict(Bot bot) {
         double[][] newProbabilityMap = new double[ship.getHeight()][ship.getWidth()];
-        double totalProbability = 0.0;
+        //double totalProbability = 0.0;
         for (int i = 0; i < ship.getHeight(); i++) {
             for (int j = 0; j < ship.getWidth(); j++) {
                 if (ship.getTile(j, i).is(Status.BLOCKED)) continue;
@@ -96,13 +98,14 @@ public class Bot3 implements Algorithm{
                     int prevX = j - dir.dx;
                     int prevY = i - dir.dy;
                     if (ship.withinBounds(prevX, prevY) && !ship.getTile(prevX, prevY).is(Status.BLOCKED)) {
+                        // Adjust with alpha val worth
                         newProbabilityMap[i][j] += probabilityMap[prevY][prevX] * transitionModel[prevY][prevX][dir.ordinal()];
                     }
                 }
-                totalProbability += newProbabilityMap[i][j];
+                //totalProbability += newProbabilityMap[i][j];
             }
         }
-        normalizeProbabilityMap(newProbabilityMap, totalProbability);
+        //normalizeProbabilityMap(newProbabilityMap, totalProbability);
         probabilityMap = newProbabilityMap;
     }
 
@@ -133,14 +136,14 @@ public class Bot3 implements Algorithm{
     }
 
     private boolean shouldRecalculatePath() {
-        return recalculatePath >= Math.max(1, 5 - consecutiveNoMovement);
+        return recalculatePath >= Math.max(1, MAX_CONSECUTIVE_NO_MOVEMENT - consecutiveNoMovement);
     }
 
     @Override
     public void execute(Bot bot) {
         if (!sense) {
             if (moveQueue.isEmpty() || shouldRecalculatePath()) {
-                if (moveQueue.size() > 150) moveQueue.clear();
+                if (moveQueue.size() >= 80) moveQueue.clear();
                 // moveQueue.clear();
                 planPath(bot);
                 recalculatePath = 0;
@@ -169,11 +172,10 @@ public class Bot3 implements Algorithm{
                         
                         int manhattanDistance = bot.getLocation().manhattanDistance(j, i);
                         double beepProbability = Math.exp(-bot.getSensor().getSensitivity() * (manhattanDistance - 1));
-                        probabilityMap[i][j] *= (1 - beepProbability) * 0.0001;
+                        probabilityMap[i][j] *= (1 - beepProbability) * 0.001;
                         totalProbability += probabilityMap[i][j];
                     }
                 }
-                predict();
 
                 normalizeProbabilityMap(probabilityMap, totalProbability);
             }
@@ -183,7 +185,7 @@ public class Bot3 implements Algorithm{
         }
 
         // Update probability map
-        predict();
+        predict(bot);
         update(bot);
 
         checkTargetMovement();

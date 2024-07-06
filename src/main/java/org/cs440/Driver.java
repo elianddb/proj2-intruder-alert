@@ -57,12 +57,13 @@ public class Driver {
     private static void runBenchmark() {
         Scanner scanner = new Scanner(System.in);
         int iterations = 0;
+        int threadPoolSize = Runtime.getRuntime().availableProcessors();
         while (!input.equals("exit")) {
             System.out.println("How many iterations would you like to run per alpha value?");
             System.out.println("Enter the number of iterations: ");
             input = scanner.nextLine().trim();
             if (input.equals("exit")) {
-                break;
+                return;
             }
 
             try {
@@ -71,9 +72,55 @@ public class Driver {
                     System.out.println("Invalid input. Please try again.");
                     continue;
                 }
-                int threadPoolSize = Runtime.getRuntime().availableProcessors();
+                break;
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please try again.");
+                continue;
+            }
+        }
+
+        int mouseType = 2;
+        while (!input.equals("exit")) {
+            System.out.println("What type of mice would you like to run?");
+            System.out.println("1. Stochastic Mouse");
+            System.out.println("2. Stationary Mouse");
+
+            System.out.println("Enter the number of the mouse type you would like to run: ");
+            input = scanner.nextLine().trim();
+
+            if (input.equals("exit")) {
+                return;
+            }
+            
+            if (input.equals("1")) {
+                mouseType = 1;
+                break;
+            } else if (input.equals("2")) {
+                mouseType = 2;
+                break;
+            } else if (!input.equals("exit")) {
+                System.out.println("Invalid input. Please try again.");
+                continue;
+            }
+        }
+
+        int noOfMice = 1;
+        while (!input.equals("exit")) {
+            System.out.println("How many mice would you like to run?");
+            System.out.println("Enter the number of mice you would like to run: ");
+            input = scanner.nextLine().trim();
+            if (input.equals("exit")) {
+                return;
+            }
+
+            try {
+                noOfMice = Integer.parseInt(input);
+                if (noOfMice <= 0) {
+                    System.out.println("Invalid input. Please try again.");
+                    continue;
+                }
                 logger.info("Running benchmark with " + iterations + " iterations and " + threadPoolSize + " threads");
-                SimulationRunner.main(new String[] {String.valueOf(iterations), String.valueOf(threadPoolSize)});
+                SimulationRunner.main(new String[] {String.valueOf(iterations), String.valueOf(threadPoolSize), String.valueOf(mouseType), String.valueOf(noOfMice)});
                 break;
             } catch (NumberFormatException e) {
                 System.out.println("Invalid input. Please try again.");
