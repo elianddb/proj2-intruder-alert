@@ -94,7 +94,7 @@ public class SimulationRunner {
                         DoubleColumn.create("Avg Moves (Bot2)", avgMovesBot2),
                         DoubleColumn.create("Avg Moves (Bot3)", avgMovesBot3));
 
-        plotAverageMoves(results, MouseType.values()[mouseType-1].description + " (" + noOfMice + " mice)");
+        plotAverageMoves(results, MouseType.values()[mouseType-1].description + " [" + noOfMice + " mice]");
 
         Bot1RVFactory.count = 0;
         Bot2RVFactory.count = 0;
