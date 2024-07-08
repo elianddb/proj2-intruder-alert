@@ -46,6 +46,10 @@ public class Tile {
         this.type = type;
     }
 
+    public void set(Status status) {
+        type.status = status;
+    }
+
     @Override
     public String toString() {
         return String.format("%c(%d, %d): %s", type.identifier, location.x, location.y, type.status);
@@ -59,7 +63,7 @@ public class Tile {
 
     public static class Type {
         protected final char identifier;
-        protected final Status status;
+        protected Status status;
 
         public Type(char identifier, Status status) {
             this.identifier = identifier;
@@ -103,13 +107,23 @@ public class Tile {
         public Location[] cardinalNeighbors() {
             return new Location[] {up(), down(), left(), right()};
         }
+
+        public int manhattanDistance(Location location) {
+            return Math.abs(x - location.x) + Math.abs(y - location.y);
+        }
+
+        public int manhattanDistance(int x, int y) {
+            return Math.abs(this.x - x) + Math.abs(this.y - y);
+        }
+
         @Override
         public int hashCode() {
             int result = 17; // Arbitrary starting value
-            result = 31 * result + x; // 31 is a commonly used prime multiplier
-            result = 31 * result + y;
+            result = 31 * result + ((Integer) x).hashCode(); // 31 is a commonly used prime multiplier
+            result = 31 * result + ((Integer) y).hashCode();
             return result;
         }
+
         @Override
         public boolean equals(Object obj) {
             if (this == obj) {
@@ -120,6 +134,10 @@ public class Tile {
             }
             Location location = (Location) obj;
             return x == location.x && y == location.y;
+        }
+
+        public boolean equals(int x, int y) {
+            return this.x == x && this.y == y;
         }
 
         @Override

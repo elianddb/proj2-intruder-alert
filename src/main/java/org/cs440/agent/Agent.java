@@ -16,14 +16,6 @@ public abstract class Agent {
         this.identifier = identifier;
     }
 
-    public Location location() {
-        return location;
-    }
-
-    public char identifier() {
-        return identifier;
-    }
-
     public void link(Ship ship) {
         this.ship = ship;
         Tile tile = ship.requestRandomTile(Status.OPEN);
@@ -32,9 +24,21 @@ public abstract class Agent {
         ship.setTile(location, Ship.OCCUPIED);
     }
 
-    public interface Mortality {
-        public boolean kill(int x, int y);
-        public boolean alive();
+    public Location getLocation() {
+        return location;
+    }
+
+    public char getIdentifier() {
+        return identifier;
+    }
+
+    public Ship getShip() {
+        return ship;
+    }
+
+    public interface Capture {
+        public boolean capture(int x, int y);
+        public boolean isFree();
     }
 
     public interface Movement {

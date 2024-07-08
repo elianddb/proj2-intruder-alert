@@ -5,13 +5,13 @@ import java.util.ArrayList;
 import org.cs440.App;
 import org.cs440.agent.Agent.Action;
 import org.cs440.agent.Agent.Movement;
-import org.cs440.agent.Agent.Mortality;
+import org.cs440.agent.Agent.Capture;
 import org.cs440.ship.Ship;
 import org.cs440.ship.Tile;
 import org.cs440.ship.Tile.Status;
 
-public class StochasticMouse extends Agent implements Movement, Action, Mortality {
-    private boolean alive = true;
+public class StochasticMouse extends Agent implements Movement, Action, Capture {
+    private boolean free = true;
     
     public StochasticMouse(char identifier) {
         super(identifier);
@@ -41,7 +41,7 @@ public class StochasticMouse extends Agent implements Movement, Action, Mortalit
 
     @Override
     public void perform() {
-        if (!alive) {
+        if (!free) {
             return;
         }
         
@@ -68,18 +68,19 @@ public class StochasticMouse extends Agent implements Movement, Action, Mortalit
     }
 
     @Override
-    public boolean kill(int x, int y) {
+    public boolean capture(int x, int y) {
         if (location.x() == x && location.y() == y) {
-            alive = false;
-            identifier = '%';
+            free = false;
+            identifier = '@';
+            App.logger.debug("Mouse " + identifier + " captured at " + location);
         }
 
-        return !alive;
+        return !free;
     }
 
     @Override
-    public boolean alive() {
-        return alive;
+    public boolean isFree() {
+        return free;
     }
 
     @Override

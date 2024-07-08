@@ -222,6 +222,21 @@ public class Ship {
         tile.set(type);
     }
 
+    public void setTile(Location location, Status status) {
+        enforceBounds(location);
+        Tile tile = getTile(location);
+        if (tile.is(status)) { // No need to update
+            return;
+        }
+
+        enforceOwnership(location);
+        // Update related tile set
+        tileSets.get(tile.type.status).remove(tile);
+        tileSets.get(status).add(tile);
+
+        tile.set(status);
+    }
+
     public void openTile(int x, int y) {
         setTile(x, y, OPEN);
     }
@@ -254,11 +269,11 @@ public class Ship {
         return deadEnds.size();
     }
 
-    public int width() {
+    public int getWidth() {
         return tiles[0].length;
     }
 
-    public int height() {
+    public int getHeight() {
         return tiles.length;
     }
 
