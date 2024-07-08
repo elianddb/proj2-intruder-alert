@@ -21,8 +21,8 @@ import org.cs440.ship.Tile.Status;
 
 public class Bot3 implements Algorithm {
     private static final double EPSILON = 1e-11; // Small constant for smoothing
-    private static final int MCMC_ITERATIONS = 10;
-    private static double MOVE_THRESHOLD = 0.009;
+    private static final int MCMC_ITERATIONS = 100;
+    private static double MOVE_THRESHOLD = 0.0095;
     
     private HashSet<Location> captured;
     private LinkedList<Direction> moveQueue;
@@ -72,7 +72,7 @@ public class Bot3 implements Algorithm {
     public void execute(Bot bot) {
         this.bot = bot;
         if (!shouldSense(bot)) {
-            if (moveQueue.isEmpty() || gradientTarget + MOVE_THRESHOLD < findMaxProbGradient()) {
+            if (moveQueue.isEmpty() || gradientTarget + MOVE_THRESHOLD <= findMaxProbGradient()) {
                 planPath(bot);
             }
 
@@ -199,11 +199,15 @@ public class Bot3 implements Algorithm {
                     continue;
                 }
 
+                if (probabilityMap[i][j] == 0.0) {
+                    continue;
+                }
+
                 List<Direction> validMoves = getValidMoves(j, i);
                 for (Direction dir : validMoves) {
                     int newX = j + dir.dx;
                     int newY = i + dir.dy;
-                    newProbabilityMap[newY][newX] += probabilityMap[i][j] * transitionModel[dir.ordinal()][i][j] * (1 - Math.min(1, gradientMap[i][j]));
+                    newProbabilityMap[newY][newX] += probabilityMap[i][j] * transitionModel[dir.ordinal()][i][j] * (1 - Math.min(1, gradientMap[i][j])) / (1 - probabilityMap[i][j]);
                 }
             }
         }
@@ -357,7 +361,7 @@ public class Bot3 implements Algorithm {
             }
         }
 
-        refinePath();
+        //refinePath();
     }
 
     private void refinePath() {
@@ -390,10 +394,10 @@ public class Bot3 implements Algorithm {
             int newX = current.x() + dir.dx;
             int newY = current.y() + dir.dy;
             // Simulate beep randomly given believed location of target
-            boolean beeped = Math.random() < Math.exp(-bot.getSensor().getSensitivity() * (current.manhattanDistance(lastMaxProbabilityLocation) - 1));
-            double newProbability = Math.exp(-bot.getSensor().getSensitivity() * (current.manhattanDistance(newX, newY) - 1));
+            double newProbability = Math.exp(-bot.getSensor().getSensitivity() * (lastMaxProbabilityLocation.manhattanDistance(newX, newY) - 1));
+            boolean beeped = Math.random() <= newProbability;
             double newProbabilityGivenBeep = beeped ? newProbability : 1 - newProbability;
-            if (ship.withinBounds(newX, newY) && !ship.getTile(newX, newY).is(Status.BLOCKED)) {
+            if (ship.withinBounds(newX, newY) && !ship.getTile(newX, newY).is(Status.BLOCKED) && !captured.contains(new Location(newX, newY))) {
                 probability *= probabilityMap[newY][newX] * newProbabilityGivenBeep;
                 current = new Location(newX, newY);
             } else {
