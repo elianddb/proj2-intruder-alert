@@ -45,7 +45,7 @@ public class Sensor {
         //     for some constant alpha > 0, alpha = sensitivity
         // If the bot is immediately adjacent to the target, the probability of receiving a beep is 1
         for (Agent target : targets) {
-            if (!(target instanceof Capture) || !((Capture) target).isFree()) continue;
+            if (!(target instanceof Capture) || target.identifier == '@') continue;
             int d = user.getLocation().manhattanDistance(target.getLocation());
             double probability = Math.exp((-sensitivity) * (d - 1));
             App.logger.debug("Probability of sensing target: " + probability);

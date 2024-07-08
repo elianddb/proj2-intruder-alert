@@ -2,6 +2,7 @@ package org.cs440.agent.algorithm;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -20,19 +21,24 @@ import org.cs440.ship.Tile.Status;
 
 public class Bot3 implements Algorithm {
     private static final double EPSILON = 1e-11; // Small constant for smoothing
-    private static final int MCMC_ITERATIONS = 1000;
-    private static final double TEMPERATURE = 0.1;
-
+    private static final int MCMC_ITERATIONS = 10;
+    private static double MOVE_THRESHOLD = 0.009;
+    
+    private HashSet<Location> captured;
     private LinkedList<Direction> moveQueue;
     private double probabilityMap[][];
     private double transitionModel[][][];
+    private double gradientMap[][];
+    private double gradientTarget;
     private boolean sense = true;
 
     private Location lastMaxProbabilityLocation;
 
     private Ship ship;
+    private Bot bot;
 
     public Bot3(Ship ship) {
+        this.captured = new HashSet<>();
         this.moveQueue = new LinkedList<Direction>();
         this.ship = ship;
         int height = ship.getHeight();
@@ -41,6 +47,7 @@ public class Bot3 implements Algorithm {
         // open tile is uniform
         double uniformProbability = 1.0 / (ship.numOfOpen() + 1);
         probabilityMap = new double[height][width];
+        gradientMap = new double[height][width];
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
                 if (ship.getTile(j, i).is(Status.BLOCKED)) {
@@ -48,28 +55,24 @@ public class Bot3 implements Algorithm {
                 }
 
                 probabilityMap[i][j] = uniformProbability;
+                gradientMap[i][j] = 0.0;
             }
         }
 
-        transitionModel = new double[height][width][5]; // 5 for 4 directions + stay
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-                if (ship.getTile(j, i).is(Status.BLOCKED))
-                    continue;
-                List<Direction> validMoves = getValidMoves(j, i);
-                double moveProbability = 1.0 / (validMoves.size());
-                for (Direction dir : validMoves) {
-                    // adjust with alpha val worth
-                    transitionModel[i][j][dir.ordinal()] = moveProbability;
-                }
-            }
-        }
+        transitionModel = new double[5][height][width]; // 5 for 4 directions + stay in place`
+    }
+
+    private boolean shouldSense(Bot bot) {
+        double maxProbability = findMaxProbability();
+        // if close to target lower amount of sensing
+        return sense;
     }
 
     @Override
     public void execute(Bot bot) {
-        if (!sense) {
-            if (moveQueue.isEmpty()) {
+        this.bot = bot;
+        if (!shouldSense(bot)) {
+            if (moveQueue.isEmpty() || gradientTarget + MOVE_THRESHOLD < findMaxProbGradient()) {
                 planPath(bot);
             }
 
@@ -84,8 +87,9 @@ public class Bot3 implements Algorithm {
             int y = bot.getLocation().y() + direction.dy;
             App.logger.debug("Attempting to move to: (" + x + ", " + y + ")");
             if (bot.attemptCapture(x, y)) {
+                captured.add(new Location(x, y));
                 probabilityMap[y][x] = 0.0;
-                adjustProbabilitiesAfterCapture(bot);
+                adjustProbabilitiesAfterCapture(bot, x, y);
                 return;
             }
             sense = true;
@@ -96,91 +100,56 @@ public class Bot3 implements Algorithm {
 
         predict(bot);
         update(bot, sensorBeeped);
-
-        refineProbabilitiesWithMCMC(bot);
+        normalizeProbabilityMap(probabilityMap);
 
         sense = false;
     }
 
-    private void refineProbabilitiesWithMCMC(Bot bot) {
-        double[][] newProbabilityMap = new double[ship.getHeight()][ship.getWidth()];
-        Random random = new Random();
-        for (int iter = 0; iter < MCMC_ITERATIONS; iter++) {
-            Location current = sampleLocation();
-            Location proposed = proposeNeighbor(current);
-            
-            double currentProb = getProbability(current);
-            double proposedProb = getProbability(proposed);
-            
-            double acceptanceRatio = Math.min(1, proposedProb / currentProb);
-            
-            if (random.nextDouble() < acceptanceRatio) {
-                newProbabilityMap[proposed.y()][proposed.x()] += 1;
-            } else {
-                newProbabilityMap[current.y()][current.x()] += 1;
-            }
-        }
-        
-        normalizeProbabilityMap(newProbabilityMap, MCMC_ITERATIONS);
-        blendProbabilityMaps(newProbabilityMap, 0.3);
-    }
-
-    private Location sampleLocation() {
-        double totalProb = Arrays.stream(probabilityMap)
-                                 .flatMapToDouble(Arrays::stream)
-                                 .sum();
-        Random random = new Random();
-        double randomValue = random.nextDouble() * totalProb;
-        
+    public void updateTransitionModel() {
         for (int i = 0; i < ship.getHeight(); i++) {
             for (int j = 0; j < ship.getWidth(); j++) {
-                randomValue -= probabilityMap[i][j];
-                if (randomValue <= 0) {
-                    return new Location(j, i);
+                if (ship.getTile(j, i).is(Status.BLOCKED) || bot.getLocation().equals(j, i) || captured.contains(new Location(j, i))) {
+                    continue;
+                }
+
+                List<Direction> validMoves = getValidMoves(j, i);
+                double moveProbability = 1.0 / (validMoves.size() + EPSILON);
+                for (Direction dir : validMoves) {
+                    int newX = j + dir.dx;
+                    int newY = i + dir.dy;
+                    transitionModel[dir.ordinal()][i][j] = moveProbability;
                 }
             }
         }
-        
-        return new Location(0, 0);  // Fallback, should rarely happen
+
+        // for (double[][] matrix : transitionModel) {
+        //     normalizeProbabilityMap(matrix);
+        // }
     }
 
-    private Location proposeNeighbor(Location current) {
-        Random random = new Random();
-        List<Direction> validMoves = getValidMoves(current.x(), current.y());
-        if (validMoves.size() <= 1) return current;
-        Direction randomDirection = validMoves.get(random.nextInt(validMoves.size()));
-        return new Location(current.x() + randomDirection.dx, current.y() + randomDirection.dy);
-    }
-
-    private double getProbability(Location loc) {
-        return probabilityMap[loc.y()][loc.x()];
-    }
-
-    private void blendProbabilityMaps(double[][] newMap, double weight) {
-        for (int i = 0; i < ship.getHeight(); i++) {
-            for (int j = 0; j < ship.getWidth(); j++) {
-                probabilityMap[i][j] = (1 - weight) * probabilityMap[i][j] + weight * newMap[i][j];
-            }
-        }
-    }
-
-    public void adjustProbabilitiesAfterCapture(Bot bot) {
-        
-        double totalProbability = 0.0;
+    public void adjustProbabilitiesAfterCapture(Bot bot, int x, int y) {
+        double[][] newProbabilityMap = new double[ship.getHeight()][ship.getWidth()];
         for (int i = 0; i < ship.getHeight(); i++) {
             for (int j = 0; j < ship.getWidth(); j++) {
                 if (ship.getTile(j, i).is(Status.BLOCKED)) {
                     continue;
                 }
 
-                int manhattanDistance = bot.getLocation().manhattanDistance(j, i);
+                if (captured.contains(new Location(j, i))) {
+                    probabilityMap[i][j] = 0.0;
+                    continue;
+                }
+
+                int manhattanDistance = new Location(j, i).manhattanDistance(x, y);
                 double beepProbability = Math.exp(-bot.getSensor().getSensitivity() * (manhattanDistance - 1));
-                probabilityMap[i][j] *= (1 - beepProbability) * 0.001;
-                totalProbability += probabilityMap[i][j];
+                double likelihood = 1 - beepProbability;
+                newProbabilityMap[i][j] = probabilityMap[i][j] * likelihood * (1 - Math.min(1, gradientMap[i][j]));
+                gradientMap[i][j] = Math.abs(newProbabilityMap[i][j] - probabilityMap[i][j]);
             }
         }
-
-        normalizeProbabilityMap(probabilityMap, totalProbability);
+        probabilityMap = newProbabilityMap;
+        normalizeProbabilityMap(gradientMap);
+        normalizeProbabilityMap(probabilityMap);
     }
 
     private List<Direction> getValidMoves(int x, int y) {
@@ -188,64 +157,85 @@ public class Bot3 implements Algorithm {
         for (Direction dir : Direction.values()) {
             int newX = x + dir.dx;
             int newY = y + dir.dy;
-            if (ship.withinBounds(newX, newY) && ship.getTile(newX, newY).is(Status.OPEN)) {
+            if (ship.withinBounds(newX, newY) && !ship.getTile(newX, newY).is(Status.BLOCKED)) {
+                if (bot != null && bot.getLocation().equals(newX, newY)) {
+                    continue;
+                }
+
+                if (captured.contains(new Location(newX, newY))) {
+                    continue;
+                }
+
                 validMoves.add(dir);
             }
         }
         return validMoves;
     }
 
-    private void normalizeProbabilityMap(double[][] map, double totalProbability) {
-        totalProbability += EPSILON;
+    private void normalizeProbabilityMap(double[][] map) {
+        double totalProbability = EPSILON;
         for (int i = 0; i < ship.getHeight(); i++) {
             for (int j = 0; j < ship.getWidth(); j++) {
-                if (!ship.getTile(j, i).is(Status.BLOCKED)) {
-                    map[i][j] = (map[i][j]) / totalProbability;
-                }
+                totalProbability += map[i][j];
+            }
+        }
+
+        for (int i = 0; i < ship.getHeight(); i++) {
+            for (int j = 0; j < ship.getWidth(); j++) {
+                map[i][j] /= totalProbability;
             }
         }
     }
 
     private void predict(Bot bot) {
+        updateTransitionModel();
         double[][] newProbabilityMap = new double[ship.getHeight()][ship.getWidth()];
         for (int i = 0; i < ship.getHeight(); i++) {
             for (int j = 0; j < ship.getWidth(); j++) {
                 if (ship.getTile(j, i).is(Status.BLOCKED))
                     continue;
-                for (Direction dir : Direction.values()) {
-                    int prevX = j - dir.dx;
-                    int prevY = i - dir.dy;
-                    if (ship.withinBounds(prevX, prevY) && !ship.getTile(prevX, prevY).is(Status.BLOCKED)) {
-                        newProbabilityMap[i][j] += probabilityMap[prevY][prevX]
-                                * transitionModel[prevY][prevX][dir.ordinal()];
-                    }
+
+                if (captured.contains(new Location(j, i))) {
+                    continue;
+                }
+
+                List<Direction> validMoves = getValidMoves(j, i);
+                for (Direction dir : validMoves) {
+                    int newX = j + dir.dx;
+                    int newY = i + dir.dy;
+                    newProbabilityMap[newY][newX] += probabilityMap[i][j] * transitionModel[dir.ordinal()][i][j] * (1 - Math.min(1, gradientMap[i][j]));
                 }
             }
         }
-
         probabilityMap = newProbabilityMap;
     }
 
     private void update(Bot bot, boolean sensorBeeped) {
         double[][] newProbabilityMap = new double[ship.getHeight()][ship.getWidth()];
-        double totalProbability = 0.0;
 
         for (int i = 0; i < ship.getHeight(); i++) {
             for (int j = 0; j < ship.getWidth(); j++) {
-                if (ship.getTile(j, i).is(Status.BLOCKED) || bot.getLocation().equals(j, i)) {
+                if (ship.getTile(j, i).is(Status.BLOCKED)) {
+                    continue;
+                }
+
+                if (bot.getLocation().equals(j, i)) {
+                    probabilityMap[i][j] /= 100;
+                }
+
+                if (captured.contains(new Location(j, i))) {
+                    newProbabilityMap[i][j] = 0.0;
                     continue;
                 }
 
                 int manhattanDistance = bot.getLocation().manhattanDistance(j, i);
                 double beepProbability = Math.exp(-bot.getSensor().getSensitivity() * (manhattanDistance - 1));
                 double likelihood = sensorBeeped ? beepProbability : 1 - beepProbability;
-
-                newProbabilityMap[i][j] = probabilityMap[i][j] * likelihood;
-                totalProbability += newProbabilityMap[i][j];
+                newProbabilityMap[i][j] = probabilityMap[i][j] * likelihood * (1 - Math.min(1, gradientMap[i][j]));
+                gradientMap[i][j] = Math.abs(newProbabilityMap[i][j] - probabilityMap[i][j]);
             }
         }
-
-        normalizeProbabilityMap(newProbabilityMap, totalProbability);
+        normalizeProbabilityMap(gradientMap);
         probabilityMap = newProbabilityMap;
 
         App.logger.debug("\n" + toString());
@@ -253,15 +243,23 @@ public class Bot3 implements Algorithm {
 
     private Location findMaxProbabilityLocation() {
         double maxProbability = 0.0;
-        Location maxLocation = null;
+        Location maxLocation = lastMaxProbabilityLocation == null ? new Location(0, 0) : lastMaxProbabilityLocation;
         for (int i = 0; i < ship.getHeight(); i++) {
             for (int j = 0; j < ship.getWidth(); j++) {
                 if (ship.getTile(j, i).is(Status.BLOCKED)) {
                     continue;
                 }
 
-                if (probabilityMap[i][j] > maxProbability) {
-                    maxProbability = probabilityMap[i][j];
+                if (captured.contains(new Location(j, i))) {
+                    continue;
+                }
+
+                if (probabilityMap[i][j] == 0.0) {
+                    continue;
+                }
+
+                if (probabilityMap[i][j] * (1 - gradientMap[i][j]) > maxProbability) {
+                    maxProbability = probabilityMap[i][j] * (1 - gradientMap[i][j]);
                     maxLocation = new Location(j, i);
                 }
             }
@@ -270,58 +268,47 @@ public class Bot3 implements Algorithm {
         return maxLocation;
     }
 
-    private void applyMCMC(Bot bot) {
-        Random random = new Random();
-        for (int iter = 0; iter < MCMC_ITERATIONS; iter++) {
-            Location currentLocation = sampleFromProbabilityMap();
-            Location proposedLocation = proposeNewLocation(currentLocation);
-            
-            double currentProbability = probabilityMap[currentLocation.y()][currentLocation.x()];
-            double proposedProbability = probabilityMap[proposedLocation.y()][proposedLocation.x()];
-            
-            double acceptanceProbability = Math.min(1, proposedProbability / currentProbability);
-            
-            if (random.nextDouble() < acceptanceProbability) {
-                // Accept the proposed location
-                probabilityMap[currentLocation.y()][currentLocation.x()] *= 0.99;
-                probabilityMap[proposedLocation.y()][proposedLocation.x()] *= 1.01;
-            }
-        }
-    }
-
-    private Location sampleFromProbabilityMap() {
-        Random random = new Random();
-        double randomValue = random.nextDouble();
-        double cumulativeProbability = 0.0;
-        
+    private double findMaxProbGradient() {
+        double maxPG = 0.0;
         for (int i = 0; i < ship.getHeight(); i++) {
             for (int j = 0; j < ship.getWidth(); j++) {
-                cumulativeProbability += probabilityMap[i][j];
-                if (cumulativeProbability >= randomValue) {
-                    return new Location(j, i);
+                if (ship.getTile(j, i).is(Status.BLOCKED)) {
+                    continue;
+                }
+
+                if (captured.contains(new Location(j, i))) {
+                    continue;
+                }
+
+                if (probabilityMap[i][j] * (1 - gradientMap[i][j]) > maxPG) {
+                    maxPG = probabilityMap[i][j] * (1 - gradientMap[i][j]);
                 }
             }
         }
-        
-        // This should never happen if the probability map is normalized
-        return new Location(0, 0);
+        return maxPG;
     }
 
-    private Location proposeNewLocation(Location currentLocation) {
-        Random random = new Random();
-        List<Direction> validMoves = getValidMoves(currentLocation.x(), currentLocation.y());
-        if (validMoves.size() == 0 || validMoves.size() == 1) {
-            return currentLocation;
+    private double findMaxProbability() {
+        double maxProbability = 0.0;
+        for (int i = 0; i < ship.getHeight(); i++) {
+            for (int j = 0; j < ship.getWidth(); j++) {
+                if (ship.getTile(j, i).is(Status.BLOCKED)) {
+                    continue;
+                }
+
+                if (probabilityMap[i][j] > maxProbability) {
+                    maxProbability = probabilityMap[i][j];
+                }
+            }
         }
-        Direction randomDirection = validMoves.get(random.nextInt(validMoves.size()));
-        int newX = currentLocation.x() + randomDirection.dx;
-        int newY = currentLocation.y() + randomDirection.dy;
-        return new Location(newX, newY);
+        return maxProbability;
     }
 
     // Follow path that maximizes information gained (tiles with higher validMoves)
     public void planPath(Bot bot) {
+        moveQueue.clear();
         Location target = findMaxProbabilityLocation();
+        gradientTarget = gradientMap[target.y()][target.x()];
 
         Queue<Location> fringe = new LinkedList<>();
         HashSet<Location> visited = new HashSet<>();
@@ -361,7 +348,7 @@ public class Bot3 implements Algorithm {
                     continue;
                 }
 
-                if (visited.contains(neighbor)) {
+                if (visited.contains(neighbor) || captured.contains(neighbor)) {
                     continue;
                 }
 
@@ -369,6 +356,51 @@ public class Bot3 implements Algorithm {
                 parent.put(neighbor, current);
             }
         }
+
+        refinePath();
+    }
+
+    private void refinePath() {
+        Random random = new Random();
+        for (int i = 0; i < MCMC_ITERATIONS; i++) {
+            int index1 = random.nextInt(moveQueue.size());
+            int index2 = random.nextInt(moveQueue.size());
+            
+            LinkedList<Direction> newPath = new LinkedList<>(moveQueue);
+            Collections.swap(newPath, index1, index2);
+            
+            if (acceptNewPath(newPath)) {
+                moveQueue = newPath;
+            }
+        }
+    }
+
+    private boolean acceptNewPath(LinkedList<Direction> newPath) {
+        double currentPathProbability = calculatePathProbability(moveQueue);
+        double newPathProbability = calculatePathProbability(newPath);
+        Random random = new Random();
+        double acceptanceProbability = Math.min(1, newPathProbability / (currentPathProbability + EPSILON));
+        return currentPathProbability < newPathProbability;
+    }
+
+    private double calculatePathProbability(LinkedList<Direction> path) {
+        double probability = 1.0;
+        Location current = bot.getLocation();
+        for (Direction dir : path) {
+            int newX = current.x() + dir.dx;
+            int newY = current.y() + dir.dy;
+            // Simulate beep randomly given believed location of target
+            boolean beeped = Math.random() < Math.exp(-bot.getSensor().getSensitivity() * (current.manhattanDistance(lastMaxProbabilityLocation) - 1));
+            double newProbability = Math.exp(-bot.getSensor().getSensitivity() * (current.manhattanDistance(newX, newY) - 1));
+            double newProbabilityGivenBeep = beeped ? newProbability : 1 - newProbability;
+            if (ship.withinBounds(newX, newY) && !ship.getTile(newX, newY).is(Status.BLOCKED)) {
+                probability *= probabilityMap[newY][newX] * newProbabilityGivenBeep;
+                current = new Location(newX, newY);
+            } else {
+                return 0.0; // Invalid path
+            }
+        }
+        return probability;
     }
 
     @Override
