@@ -21,8 +21,7 @@ import org.cs440.ship.Tile.Status;
 
 public class Bot3 implements Algorithm {
     private static final double EPSILON = 1e-11; // Small constant for smoothing
-    private static final int MCMC_ITERATIONS = 100;
-    private static double MOVE_THRESHOLD = 0.0095;
+    private static double MOVE_THRESHOLD = 0.009;
     
     private HashSet<Location> captured;
     private LinkedList<Direction> moveQueue;
@@ -363,50 +362,7 @@ public class Bot3 implements Algorithm {
 
         //refinePath();
     }
-
-    private void refinePath() {
-        Random random = new Random();
-        for (int i = 0; i < MCMC_ITERATIONS; i++) {
-            int index1 = random.nextInt(moveQueue.size());
-            int index2 = random.nextInt(moveQueue.size());
-            
-            LinkedList<Direction> newPath = new LinkedList<>(moveQueue);
-            Collections.swap(newPath, index1, index2);
-            
-            if (acceptNewPath(newPath)) {
-                moveQueue = newPath;
-            }
-        }
-    }
-
-    private boolean acceptNewPath(LinkedList<Direction> newPath) {
-        double currentPathProbability = calculatePathProbability(moveQueue);
-        double newPathProbability = calculatePathProbability(newPath);
-        Random random = new Random();
-        double acceptanceProbability = Math.min(1, newPathProbability / (currentPathProbability + EPSILON));
-        return currentPathProbability < newPathProbability;
-    }
-
-    private double calculatePathProbability(LinkedList<Direction> path) {
-        double probability = 1.0;
-        Location current = bot.getLocation();
-        for (Direction dir : path) {
-            int newX = current.x() + dir.dx;
-            int newY = current.y() + dir.dy;
-            // Simulate beep randomly given believed location of target
-            double newProbability = Math.exp(-bot.getSensor().getSensitivity() * (lastMaxProbabilityLocation.manhattanDistance(newX, newY) - 1));
-            boolean beeped = Math.random() <= newProbability;
-            double newProbabilityGivenBeep = beeped ? newProbability : 1 - newProbability;
-            if (ship.withinBounds(newX, newY) && !ship.getTile(newX, newY).is(Status.BLOCKED) && !captured.contains(new Location(newX, newY))) {
-                probability *= probabilityMap[newY][newX] * newProbabilityGivenBeep;
-                current = new Location(newX, newY);
-            } else {
-                return 0.0; // Invalid path
-            }
-        }
-        return probability;
-    }
-
+    
     @Override
     public String toString() {
         // probability map
