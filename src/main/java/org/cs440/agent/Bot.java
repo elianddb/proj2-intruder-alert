@@ -1,20 +1,10 @@
 package org.cs440.agent;
 
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
-
-import org.cs440.App;
 import org.cs440.agent.Agent.Action;
 import org.cs440.agent.Agent.Movement;
 import org.cs440.agent.algorithm.Algorithm;
 import org.cs440.ship.Ship;
 import org.cs440.ship.Tile;
-import org.cs440.ship.Tile.Location;
 import org.cs440.ship.Tile.Status;
 
 public class Bot extends Agent implements Movement, Action  {

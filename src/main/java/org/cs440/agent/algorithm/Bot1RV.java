@@ -3,9 +3,7 @@ package org.cs440.agent.algorithm;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.PriorityQueue;
 import java.util.Queue;
-import java.util.Stack;
 
 import org.cs440.App;
 import org.cs440.agent.Agent.Movement.Direction;
