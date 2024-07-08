@@ -21,7 +21,7 @@ import org.cs440.ship.Tile.Status;
 
 public class Bot3 implements Algorithm {
     private static final double EPSILON = 1e-11; // Small constant for smoothing
-    private static double MOVE_THRESHOLD = 0.009;
+    private static double MOVE_THRESHOLD = 0.0085;
     
     private HashSet<Location> captured;
     private LinkedList<Direction> moveQueue;
@@ -362,7 +362,7 @@ public class Bot3 implements Algorithm {
 
         //refinePath();
     }
-    
+
     @Override
     public String toString() {
         // probability map
