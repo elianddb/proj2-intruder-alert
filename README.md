@@ -18,6 +18,7 @@ Then once you've cloned the repo press the Run button at the top right while on 
 
 ### General
 Download and setup [Maven](https://maven.apache.org/install.html) with the necessary environment variables.
+
 Navigate to root directory and run the following commands to setup the maven project and run the program.
 ```sh
 mvn clean compile assembly:single
