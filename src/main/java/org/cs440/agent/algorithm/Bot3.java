@@ -223,7 +223,7 @@ public class Bot3 implements Algorithm {
                 }
 
                 if (bot.getLocation().equals(j, i)) {
-                    probabilityMap[i][j] /= 100;
+                    probabilityMap[i][j] = 0.0;
                 }
 
                 if (captured.contains(new Location(j, i))) {
@@ -235,7 +235,7 @@ public class Bot3 implements Algorithm {
                 double beepProbability = Math.exp(-bot.getSensor().getSensitivity() * (manhattanDistance - 1));
                 double likelihood = sensorBeeped ? beepProbability : 1 - beepProbability;
                 newProbabilityMap[i][j] = probabilityMap[i][j] * likelihood * (1 - Math.min(1, gradientMap[i][j]));
-                gradientMap[i][j] = Math.abs(newProbabilityMap[i][j] - probabilityMap[i][j]);
+                gradientMap[i][j] = Math.abs(newProbabilityMap[i][j] - probabilityMap[i][j]) / (1 - probabilityMap[i][j]);
             }
         }
         normalizeProbabilityMap(gradientMap);
