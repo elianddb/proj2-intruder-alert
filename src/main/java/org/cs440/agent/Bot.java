@@ -10,7 +10,6 @@ import org.cs440.ship.Tile.Status;
 public class Bot extends Agent implements Movement, Action  {
     protected Sensor sensor;
     private Capture[] targets;
-    private double[][] probabilityMap;
     private Algorithm algorithm;
     private int moveCount = 0;
     private int senseCount = 0;
