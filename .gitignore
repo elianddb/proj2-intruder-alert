@@ -26,6 +26,6 @@ replay_pid*
 **/*.class
 
 #testOutput
-testOutput/
+testoutput/
 # maven
 target/
