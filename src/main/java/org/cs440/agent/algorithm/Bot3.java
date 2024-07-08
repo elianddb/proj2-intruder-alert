@@ -1,16 +1,11 @@
 package org.cs440.agent.algorithm;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.PriorityQueue;
 import java.util.Queue;
-import java.util.Random;
-import java.util.Stack;
 
 import org.cs440.App;
 import org.cs440.agent.Agent.Movement.Direction;
@@ -58,12 +53,11 @@ public class Bot3 implements Algorithm {
             }
         }
 
-        transitionModel = new double[5][height][width]; // 5 for 4 directions + stay in place`
+        transitionModel = new double[5][height][width]; // 5 for 4 directions + stay in place
     }
 
     private boolean shouldSense(Bot bot) {
         double maxProbability = findMaxProbability();
-        // if close to target lower amount of sensing
         return sense;
     }
 
@@ -120,10 +114,6 @@ public class Bot3 implements Algorithm {
                 }
             }
         }
-
-        // for (double[][] matrix : transitionModel) {
-        //     normalizeProbabilityMap(matrix);
-        // }
     }
 
     public void adjustProbabilitiesAfterCapture(Bot bot, int x, int y) {
@@ -307,7 +297,6 @@ public class Bot3 implements Algorithm {
         return maxProbability;
     }
 
-    // Follow path that maximizes information gained (tiles with higher validMoves)
     public void planPath(Bot bot) {
         moveQueue.clear();
         Location target = findMaxProbabilityLocation();
@@ -320,8 +309,6 @@ public class Bot3 implements Algorithm {
         while (!fringe.isEmpty()) {
             Location current = fringe.poll();
             visited.add(current);
-            // App.logger.debug("Current: " + current.toString() + " Target: " +
-            // target.toString());
 
             if (current.equals(target)) {
                 // Backtrack path
@@ -359,8 +346,6 @@ public class Bot3 implements Algorithm {
                 parent.put(neighbor, current);
             }
         }
-
-        //refinePath();
     }
 
     @Override

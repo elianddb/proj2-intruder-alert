@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta charset="UTF-8">
+    <title>Average Moves vs. Alpha (Stochastic Mouse [2 mice])</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <div id='target' ></div>
+        <script>
+        var target_target = document.getElementById('target');
+        var layout = {
+    title: 'Average Moves vs. Alpha (Stochastic Mouse [2 mice])',
+    height: 450,
+    width: 700,
+    xaxis: {
+    title: 'Alpha',
+    },
+
+    yaxis: {
+    title: 'Average Moves',
+    },
+
+};
+
+var trace0 =
+{
+x: ["0.1","0.2","0.3","0.4","0.5","0.6","0.7","0.8","0.9"],
+y: ["414.1","439.8","703.4","790.9","1304.4","1656.3","889.3","1370.1","1711.6"],
+mode: 'lines',
+xaxis: 'x',
+yaxis: 'y',
+type: 'scatter',
+name: 'Bot1',
+};
+var trace1 =
+{
+x: ["0.1","0.2","0.3","0.4","0.5","0.6","0.7","0.8","0.9"],
+y: ["238.4","249.6","284.2","287.0","590.6","676.2","483.0","551.8","656.8"],
+mode: 'lines',
+xaxis: 'x',
+yaxis: 'y',
+type: 'scatter',
+name: 'Bot2',
+};
+var trace2 =
+{
+x: ["0.1","0.2","0.3","0.4","0.5","0.6","0.7","0.8","0.9"],
+y: ["233.4","240.6","312.0","415.0","585.0","953.4","951.6","862.8","734.6"],
+mode: 'lines',
+xaxis: 'x',
+yaxis: 'y',
+type: 'scatter',
+name: 'Bot3',
+};
+
+        var data = [ trace0, trace1, trace2];
+Plotly.newPlot(target_target, data, layout);            </script>
+
+</body>
+</html>
