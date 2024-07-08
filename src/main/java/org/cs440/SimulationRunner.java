@@ -12,7 +12,6 @@ import java.util.logging.Logger;
 
 import tech.tablesaw.api.*;
 import tech.tablesaw.plotly.Plot;
-import tech.tablesaw.plotly.api.ScatterPlot;
 import tech.tablesaw.plotly.components.Axis;
 import tech.tablesaw.plotly.components.Figure;
 import tech.tablesaw.plotly.components.Layout;

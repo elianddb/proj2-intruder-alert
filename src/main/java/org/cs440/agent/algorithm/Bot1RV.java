@@ -3,9 +3,7 @@ package org.cs440.agent.algorithm;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.PriorityQueue;
 import java.util.Queue;
-import java.util.Stack;
 
 import org.cs440.App;
 import org.cs440.agent.Agent.Movement.Direction;
@@ -50,6 +48,7 @@ public class Bot1RV implements Algorithm{
             int y = bot.getLocation().y() + direction.dy;
             App.logger.debug("Attempting to move to: (" + x + ", " + y + ")");
             bot.attemptCapture(x, y);
+            bot.updateMoveCount();
             return;
         }
 
@@ -93,6 +92,7 @@ public class Bot1RV implements Algorithm{
         }
 
         probabilityMap = newProbabilityMap;
+        bot.updateSenseCount();
 
         planPath(bot);
         

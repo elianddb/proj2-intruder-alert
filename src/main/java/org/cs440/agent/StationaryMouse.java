@@ -2,7 +2,6 @@ package org.cs440.agent;
 
 import org.cs440.App;
 import org.cs440.agent.Agent.Capture;
-import org.cs440.ship.Tile.Status;
 
 public class StationaryMouse extends Agent implements Capture {
     private boolean free = true;
