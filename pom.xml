@@ -6,7 +6,7 @@
 
   <groupId>org.cs440</groupId>
   <artifactId>proj2-intruder-alert</artifactId>
-  <version>1.0</version>
+  <version>1.0.2</version>
 
   <name>proj2-intruder-alert</name>
   <url>https://github.com/elianddb/proj2-intruder-alert</url>
