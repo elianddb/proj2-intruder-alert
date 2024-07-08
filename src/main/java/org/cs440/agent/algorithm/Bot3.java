@@ -83,8 +83,10 @@ public class Bot3 implements Algorithm {
                 captured.add(new Location(x, y));
                 probabilityMap[y][x] = 0.0;
                 adjustProbabilitiesAfterCapture(bot, x, y);
+                bot.updateMoveCount();
                 return;
             }
+            bot.updateMoveCount();
             sense = true;
             return;
         }
@@ -94,7 +96,7 @@ public class Bot3 implements Algorithm {
         predict(bot);
         update(bot, sensorBeeped);
         normalizeProbabilityMap(probabilityMap);
-
+        bot.updateSenseCount();
         sense = false;
     }
 

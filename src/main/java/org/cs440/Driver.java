@@ -3,14 +3,12 @@ package org.cs440;
 import java.io.IOException;
 import java.util.Scanner;
 
-import org.apache.commons.math3.stat.StatUtils;
 import org.cs440.Log.Level;
 import org.cs440.agent.Agent;
 import org.cs440.agent.Bot;
 import org.cs440.agent.StationaryMouse;
 import org.cs440.agent.StochasticMouse;
 import org.cs440.agent.algorithm.Algorithm;
-import org.cs440.agent.algorithm.Bot1;
 import org.cs440.agent.algorithm.Bot1RV;
 import org.cs440.agent.algorithm.Bot2RV;
 import org.cs440.agent.algorithm.Bot3;

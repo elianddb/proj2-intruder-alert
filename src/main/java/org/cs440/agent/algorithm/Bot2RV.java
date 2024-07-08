@@ -59,6 +59,7 @@ public class Bot2RV implements Algorithm{
             int y = bot.getLocation().y() + direction.dy;
             App.logger.debug("Attempting to move to: (" + x + ", " + y + ")");
             bot.attemptCapture(x, y);
+            bot.updateMoveCount();
             sense = true;
             return;
         }
@@ -102,6 +103,7 @@ public class Bot2RV implements Algorithm{
         }
 
         probabilityMap = newProbabilityMap;
+        bot.updateSenseCount();
 
         sense = false;
         
