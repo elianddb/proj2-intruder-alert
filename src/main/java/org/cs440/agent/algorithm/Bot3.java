@@ -25,9 +25,7 @@ public class Bot3 implements Algorithm {
     private double gradientMap[][];
     private double gradientTarget;
     private boolean sense = true;
-
-    private Location lastMaxProbabilityLocation;
-
+    
     private Ship ship;
     private Bot bot;
 
@@ -112,7 +110,7 @@ public class Bot3 implements Algorithm {
                 for (Direction dir : validMoves) {
                     int newX = j + dir.dx;
                     int newY = i + dir.dy;
-                    transitionModel[dir.ordinal()][i][j] = moveProbability;
+                    transitionModel[dir.ordinal()][i][j] = moveProbability * (1 - gradientMap[newY][newX]) * (1 - bot.getSensor().getSensitivity());
                 }
             }
         }
@@ -120,26 +118,9 @@ public class Bot3 implements Algorithm {
 
     public void adjustProbabilitiesAfterCapture(Bot bot, int x, int y) {
         double[][] newProbabilityMap = new double[ship.getHeight()][ship.getWidth()];
-        for (int i = 0; i < ship.getHeight(); i++) {
-            for (int j = 0; j < ship.getWidth(); j++) {
-                if (ship.getTile(j, i).is(Status.BLOCKED)) {
-                    continue;
-                }
-
-                if (captured.contains(new Location(j, i))) {
-                    probabilityMap[i][j] = 0.0;
-                    continue;
-                }
-
-                int manhattanDistance = new Location(j, i).manhattanDistance(x, y);
-                double beepProbability = Math.exp(-bot.getSensor().getSensitivity() * (manhattanDistance - 1));
-                double likelihood = 1 - beepProbability;
-                newProbabilityMap[i][j] = probabilityMap[i][j] * likelihood * (1 - Math.min(1, gradientMap[i][j]));
-                gradientMap[i][j] = Math.abs(newProbabilityMap[i][j] - probabilityMap[i][j]);
-            }
-        }
+        update(bot, false);
+        predict(bot);
         probabilityMap = newProbabilityMap;
-        normalizeProbabilityMap(gradientMap);
         normalizeProbabilityMap(probabilityMap);
     }
 
@@ -198,7 +179,7 @@ public class Bot3 implements Algorithm {
                 for (Direction dir : validMoves) {
                     int newX = j + dir.dx;
                     int newY = i + dir.dy;
-                    newProbabilityMap[newY][newX] += probabilityMap[i][j] * transitionModel[dir.ordinal()][i][j] * (1 - Math.min(1, gradientMap[i][j])) / (1 - probabilityMap[i][j]);
+                    newProbabilityMap[newY][newX] += probabilityMap[i][j] * transitionModel[dir.ordinal()][i][j] * (1 - gradientMap[i][j]);
                 }
             }
         }
@@ -226,11 +207,10 @@ public class Bot3 implements Algorithm {
                 int manhattanDistance = bot.getLocation().manhattanDistance(j, i);
                 double beepProbability = Math.exp(-bot.getSensor().getSensitivity() * (manhattanDistance - 1));
                 double likelihood = sensorBeeped ? beepProbability : 1 - beepProbability;
-                newProbabilityMap[i][j] = probabilityMap[i][j] * likelihood * (1 - Math.min(1, gradientMap[i][j]));
-                gradientMap[i][j] = Math.abs(newProbabilityMap[i][j] - probabilityMap[i][j]) / (1 - probabilityMap[i][j]);
+                newProbabilityMap[i][j] = probabilityMap[i][j] * likelihood;
+                gradientMap[i][j] = Math.abs(newProbabilityMap[i][j] - probabilityMap[i][j]) * (1 - bot.getSensor().getSensitivity()) / (1 - probabilityMap[i][j]);
             }
         }
-        normalizeProbabilityMap(gradientMap);
         probabilityMap = newProbabilityMap;
 
         App.logger.debug("\n" + toString());
@@ -238,7 +218,7 @@ public class Bot3 implements Algorithm {
 
     private Location findMaxProbabilityLocation() {
         double maxProbability = 0.0;
-        Location maxLocation = lastMaxProbabilityLocation == null ? new Location(0, 0) : lastMaxProbabilityLocation;
+        Location maxLocation = new Location(0, 0);
         for (int i = 0; i < ship.getHeight(); i++) {
             for (int j = 0; j < ship.getWidth(); j++) {
                 if (ship.getTile(j, i).is(Status.BLOCKED)) {
@@ -259,7 +239,6 @@ public class Bot3 implements Algorithm {
                 }
             }
         }
-        this.lastMaxProbabilityLocation = maxLocation;
         return maxLocation;
     }
 
@@ -283,6 +262,28 @@ public class Bot3 implements Algorithm {
         return maxPG;
     }
 
+    public Location findMaxProbGradientLocation() {
+        double maxPG = 0.0;
+        Location maxLocation = new Location(0, 0);
+        for (int i = 0; i < ship.getHeight(); i++) {
+            for (int j = 0; j < ship.getWidth(); j++) {
+                if (ship.getTile(j, i).is(Status.BLOCKED)) {
+                    continue;
+                }
+
+                if (captured.contains(new Location(j, i))) {
+                    continue;
+                }
+
+                if (probabilityMap[i][j] * (1 - gradientMap[i][j]) > maxPG) {
+                    maxPG = probabilityMap[i][j] * (1 - gradientMap[i][j]);
+                    maxLocation = new Location(j, i);
+                }
+            }
+        }
+        return maxLocation;
+    }
+
     private double findMaxProbability() {
         double maxProbability = 0.0;
         for (int i = 0; i < ship.getHeight(); i++) {
@@ -301,7 +302,7 @@ public class Bot3 implements Algorithm {
 
     public void planPath(Bot bot) {
         moveQueue.clear();
-        Location target = findMaxProbabilityLocation();
+        Location target = findMaxProbGradientLocation();
         gradientTarget = gradientMap[target.y()][target.x()];
 
         Queue<Location> fringe = new LinkedList<>();
