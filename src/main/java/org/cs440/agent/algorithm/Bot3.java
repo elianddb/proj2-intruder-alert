@@ -204,7 +204,7 @@ public class Bot3 implements Algorithm {
                 double beepProbability = Math.exp(-sensitivity * (manhattanDistance - 1));
                 double likelihood = sensorBeeped ? beepProbability : 1 - beepProbability;
                 newProbabilityMap[i][j] = probabilityMap[i][j] * likelihood;
-                gradientMap[i][j] = Math.abs(newProbabilityMap[i][j] - probabilityMap[i][j]) / (1 - probabilityMap[i][j]);
+                gradientMap[i][j] = Math.abs(newProbabilityMap[i][j] - probabilityMap[i][j]) / (probabilityMap[i][j] + EPSILON);
             }
         }
         probabilityMap = newProbabilityMap;
