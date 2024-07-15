@@ -16,7 +16,7 @@ import org.cs440.ship.Tile.Status;
 
 public class Bot3 implements Algorithm {
     private static final double EPSILON = 1e-11; // Small constant for smoothing
-    private static double MOVE_THRESHOLD = 0.0085;
+    private static double MOVE_THRESHOLD = 0.005;
     
     private HashSet<Location> captured;
     private LinkedList<Direction> moveQueue;
@@ -24,6 +24,7 @@ public class Bot3 implements Algorithm {
     private double transitionModel[][][];
     private double gradientMap[][];
     private double gradientTarget;
+    private Location target;
     private boolean sense = true;
     
     private Ship ship;
@@ -63,7 +64,8 @@ public class Bot3 implements Algorithm {
     public void execute(Bot bot) {
         this.bot = bot;
         if (!shouldSense(bot)) {
-            if (moveQueue.isEmpty() || gradientTarget + MOVE_THRESHOLD <= findMaxProbGradient()) {
+            if (moveQueue.isEmpty() || gradientTarget + MOVE_THRESHOLD <= findMaxProbGradient()
+                || probabilityMap[target.y()][target.x()] <= EPSILON) {
                 planPath(bot);
             }
 
@@ -78,8 +80,6 @@ public class Bot3 implements Algorithm {
             int y = bot.getLocation().y() + direction.dy;
             App.logger.debug("Attempting to move to: (" + x + ", " + y + ")");
             if (bot.attemptCapture(x, y)) {
-                captured.add(new Location(x, y));
-                probabilityMap[y][x] = 0.0;
                 adjustProbabilitiesAfterCapture(bot, x, y);
                 bot.updateMoveCount();
                 return;
@@ -91,9 +91,8 @@ public class Bot3 implements Algorithm {
         
         boolean sensorBeeped = bot.getSensor().beeped();
 
-        predict(bot);
         update(bot, sensorBeeped);
-        normalizeProbabilityMap(probabilityMap);
+        predict(bot);
         bot.updateSenseCount();
         sense = false;
     }
@@ -114,14 +113,13 @@ public class Bot3 implements Algorithm {
                 }
             }
         }
+        normalizeProbabilityMap(probabilityMap);
     }
 
     public void adjustProbabilitiesAfterCapture(Bot bot, int x, int y) {
-        double[][] newProbabilityMap = new double[ship.getHeight()][ship.getWidth()];
+        captured.add(new Location(x, y));
         update(bot, false);
         predict(bot);
-        probabilityMap = newProbabilityMap;
-        normalizeProbabilityMap(probabilityMap);
     }
 
     private List<Direction> getValidMoves(int x, int y) {
@@ -171,10 +169,6 @@ public class Bot3 implements Algorithm {
                     continue;
                 }
 
-                if (probabilityMap[i][j] == 0.0) {
-                    continue;
-                }
-
                 List<Direction> validMoves = getValidMoves(j, i);
                 for (Direction dir : validMoves) {
                     int newX = j + dir.dx;
@@ -184,11 +178,13 @@ public class Bot3 implements Algorithm {
             }
         }
         probabilityMap = newProbabilityMap;
+        normalizeProbabilityMap(probabilityMap);
     }
 
     private void update(Bot bot, boolean sensorBeeped) {
         double[][] newProbabilityMap = new double[ship.getHeight()][ship.getWidth()];
 
+        double sensitivity = bot.getSensor().getSensitivity();
         for (int i = 0; i < ship.getHeight(); i++) {
             for (int j = 0; j < ship.getWidth(); j++) {
                 if (ship.getTile(j, i).is(Status.BLOCKED)) {
@@ -205,10 +201,10 @@ public class Bot3 implements Algorithm {
                 }
 
                 int manhattanDistance = bot.getLocation().manhattanDistance(j, i);
-                double beepProbability = Math.exp(-bot.getSensor().getSensitivity() * (manhattanDistance - 1));
+                double beepProbability = Math.exp(-sensitivity * (manhattanDistance - 1));
                 double likelihood = sensorBeeped ? beepProbability : 1 - beepProbability;
                 newProbabilityMap[i][j] = probabilityMap[i][j] * likelihood;
-                gradientMap[i][j] = Math.abs(newProbabilityMap[i][j] - probabilityMap[i][j]) * (1 - bot.getSensor().getSensitivity()) / (1 - probabilityMap[i][j]);
+                gradientMap[i][j] = Math.abs(newProbabilityMap[i][j] - probabilityMap[i][j]) / (1 - probabilityMap[i][j]);
             }
         }
         probabilityMap = newProbabilityMap;
@@ -303,7 +299,8 @@ public class Bot3 implements Algorithm {
     public void planPath(Bot bot) {
         moveQueue.clear();
         Location target = findMaxProbGradientLocation();
-        gradientTarget = gradientMap[target.y()][target.x()];
+        gradientTarget = (1 - gradientMap[target.y()][target.x()]) * probabilityMap[target.y()][target.x()];
+        this.target = target;
 
         Queue<Location> fringe = new LinkedList<>();
         HashSet<Location> visited = new HashSet<>();
